@@ -1,0 +1,635 @@
+:root {
+  color-scheme: light;
+  font-family:
+    "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+  background: #f5f7f3;
+  color: #18251f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --surface: #ffffff;
+  --surface-strong: #f9faf6;
+  --text-muted: #637067;
+  --line: #dfe6dc;
+  --normal: #0f766e;
+  --normal-deep: #115e59;
+  --warning: #b7791f;
+  --warning-fill: #f7c948;
+  --danger: #b91c1c;
+  --danger-deep: #7f1d1d;
+  --shadow: 0 18px 50px rgba(36, 50, 43, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(245, 247, 243, 0.88)),
+    repeating-linear-gradient(90deg, rgba(15, 118, 110, 0.035) 0 1px, transparent 1px 48px);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 28px;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.app-shell:fullscreen {
+  background: #f6f8f4;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+.timer-column {
+  display: grid;
+  grid-template-rows: minmax(500px, 1fr) auto;
+  min-height: calc(100vh - 56px);
+  gap: 16px;
+}
+
+.timer-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 500px;
+  padding: 40px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 118, 110, 0.18);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.timer-stage::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border-top: 8px solid var(--normal);
+  pointer-events: none;
+}
+
+.timer-stage--warning::before {
+  border-top-color: var(--warning-fill);
+}
+
+.timer-stage--danger::before,
+.timer-stage--overtime::before,
+.timer-stage--finished::before {
+  border-top-color: var(--danger);
+}
+
+.timer-stage--overtime {
+  animation: overtimePulse 1500ms ease-in-out infinite;
+}
+
+.timer-stage--focus {
+  width: min(1480px, calc(100vw - 56px));
+  min-height: 0;
+  flex: 1;
+}
+
+.stage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stage-label,
+.stage-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 0 14px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.stage-label {
+  color: var(--normal-deep);
+  background: #e8f4f1;
+}
+
+.stage-status {
+  color: #ffffff;
+  background: var(--normal);
+}
+
+.timer-stage--warning .stage-status {
+  color: #2f2410;
+  background: var(--warning-fill);
+}
+
+.timer-stage--danger .stage-status,
+.timer-stage--overtime .stage-status,
+.timer-stage--finished .stage-status {
+  background: var(--danger);
+}
+
+.stage-title {
+  margin: 0;
+  color: #20342c;
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.time-display {
+  margin: 36px auto 20px;
+  min-height: 1.12em;
+  color: var(--normal-deep);
+  font-family:
+    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
+  font-size: 9rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.timer-stage--warning .time-display {
+  color: #8a5b12;
+}
+
+.timer-stage--danger .time-display,
+.timer-stage--overtime .time-display,
+.timer-stage--finished .time-display {
+  color: var(--danger-deep);
+}
+
+.stage-secondary {
+  min-height: 34px;
+  color: var(--text-muted);
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.progress-track {
+  width: min(820px, 100%);
+  height: 14px;
+  margin: 38px auto 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e9eee7;
+}
+
+.progress-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--normal);
+  transition:
+    width 220ms linear,
+    background-color 180ms ease;
+}
+
+.timer-stage--warning .progress-fill {
+  background: var(--warning-fill);
+}
+
+.timer-stage--danger .progress-fill,
+.timer-stage--overtime .progress-fill,
+.timer-stage--finished .progress-fill {
+  background: var(--danger);
+}
+
+.timer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 72px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 28px rgba(36, 50, 43, 0.08);
+}
+
+.control-button,
+.icon-button,
+.secondary-action,
+.preset-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid #cdd8d0;
+  border-radius: 8px;
+  color: #20342c;
+  background: #ffffff;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.control-button:hover,
+.icon-button:hover,
+.secondary-action:hover,
+.preset-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--normal);
+}
+
+.control-button {
+  min-width: 132px;
+  padding: 0 18px;
+  font-weight: 800;
+}
+
+.control-button--primary {
+  min-width: 150px;
+  border-color: var(--normal);
+  color: #ffffff;
+  background: var(--normal);
+}
+
+.control-button--primary:hover {
+  background: var(--normal-deep);
+}
+
+.icon-button {
+  width: 44px;
+  padding: 0;
+}
+
+.icon-button--subtle {
+  width: 40px;
+  min-height: 40px;
+  color: #6e4c4c;
+  background: #fff7f7;
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 56px);
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 38px rgba(36, 50, 43, 0.1);
+}
+
+.settings-panel--muted .settings-group {
+  opacity: 0.82;
+}
+
+.settings-group {
+  display: grid;
+  gap: 12px;
+}
+
+.settings-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  color: #24372e;
+}
+
+.settings-group-title h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.text-input,
+.number-field input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #cdd8d0;
+  border-radius: 8px;
+  color: #18251f;
+  background: #ffffff;
+  outline: none;
+}
+
+.text-input {
+  padding: 0 12px;
+}
+
+.text-input:focus,
+.number-field input:focus {
+  border-color: var(--normal);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.16);
+}
+
+.duration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.number-field {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.number-field input {
+  padding: 0 10px;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.preset-button {
+  min-width: 0;
+  padding: 0 8px;
+  font-weight: 800;
+}
+
+.preset-button--active {
+  border-color: var(--normal);
+  color: #ffffff;
+  background: var(--normal);
+}
+
+.toggle-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  color: #24372e;
+  font-weight: 700;
+}
+
+.switch-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--normal);
+}
+
+.reminder-list {
+  display: grid;
+  gap: 10px;
+}
+
+.reminder-row {
+  display: grid;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px;
+  border: 1px solid #e1e8df;
+  border-radius: 8px;
+  background: var(--surface-strong);
+}
+
+.reminder-main {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 40px;
+  gap: 8px;
+  align-items: center;
+}
+
+.reminder-name {
+  min-width: 0;
+}
+
+.reminder-time-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reminder-number input {
+  min-height: 40px;
+}
+
+.secondary-action {
+  width: 100%;
+  padding: 0 14px;
+  font-weight: 800;
+}
+
+.empty-text {
+  margin: 0;
+  min-height: 36px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.fullscreen-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: calc(100vh - 56px);
+}
+
+.fullscreen-view .timer-controls {
+  width: min(860px, calc(100vw - 56px));
+}
+
+.timer-stage--focus .stage-title {
+  font-size: 4rem;
+}
+
+.timer-stage--focus .time-display {
+  font-size: 13rem;
+}
+
+.timer-stage--focus .stage-secondary {
+  font-size: 2rem;
+}
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10;
+  max-width: min(420px, calc(100vw - 48px));
+  min-height: 46px;
+  padding: 12px 16px;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 8px;
+  color: #0f3f3a;
+  background: #f0faf7;
+  box-shadow: 0 16px 36px rgba(25, 51, 44, 0.16);
+  font-weight: 800;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes overtimePulse {
+  0%,
+  100% {
+    border-color: rgba(185, 28, 28, 0.35);
+    box-shadow: 0 18px 50px rgba(127, 29, 29, 0.12);
+  }
+
+  50% {
+    border-color: rgba(185, 28, 28, 0.68);
+    box-shadow: 0 18px 54px rgba(127, 29, 29, 0.22);
+  }
+}
+
+@media (min-width: 1280px) {
+  .time-display {
+    font-size: 10.5rem;
+  }
+
+  .timer-stage--focus .time-display {
+    font-size: 15rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .timer-column,
+  .settings-panel {
+    min-height: auto;
+  }
+
+  .timer-stage {
+    min-height: 460px;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 14px;
+  }
+
+  .timer-stage {
+    min-height: 380px;
+    padding: 26px 18px;
+  }
+
+  .stage-header {
+    margin-bottom: 18px;
+  }
+
+  .stage-title {
+    font-size: 1.9rem;
+  }
+
+  .time-display,
+  .timer-stage--focus .time-display {
+    font-size: 4.6rem;
+  }
+
+  .stage-secondary,
+  .timer-stage--focus .stage-secondary {
+    font-size: 1.1rem;
+  }
+
+  .timer-controls {
+    justify-content: stretch;
+  }
+
+  .control-button {
+    flex: 1 1 140px;
+  }
+
+  .settings-panel {
+    padding: 16px;
+  }
+
+  .preset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reminder-row {
+    grid-template-columns: 1fr;
+  }
+
+  .reminder-main {
+    grid-template-columns: 72px minmax(0, 1fr) 40px;
+  }
+
+  .fullscreen-view,
+  .fullscreen-view .timer-controls,
+  .timer-stage--focus {
+    width: 100%;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .duration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-display,
+  .timer-stage--focus .time-display {
+    font-size: 3.6rem;
+  }
+
+  .stage-label,
+  .stage-status {
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 0.88rem;
+  }
+}
