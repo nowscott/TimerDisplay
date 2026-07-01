@@ -12,3 +12,4 @@
 - 支持剩余 3 分钟、剩余 1 分钟、超时等阶段颜色提示。
 - 支持提示音、试听提示音、超时后继续正计时和本地设置保存。
 - 支持静态构建和已访问后的离线可用增强。
+- 发布生产环境：[https://timer-display.vercel.app](https://timer-display.vercel.app)。

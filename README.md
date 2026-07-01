@@ -2,6 +2,10 @@
 
 TimerDisplay 是一个中文网页倒计时器，面向课堂、公开课、赛课、答辩和会议发言等现场投屏计时场景。应用为纯前端实现，可本地运行，也适合静态部署。
 
+## 在线访问
+
+生产环境：[https://timer-display.vercel.app](https://timer-display.vercel.app)
+
 ## 开源许可
 
 本项目使用 MIT License 开源。
