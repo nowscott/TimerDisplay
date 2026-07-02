@@ -60,6 +60,13 @@ input:disabled {
   background: #f6f8f4;
 }
 
+.app-shell--focus {
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  background: #f8faf6;
+}
+
 .app-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 390px;
@@ -102,10 +109,22 @@ input:disabled {
   border-top-color: var(--warning-fill);
 }
 
+.timer-stage--warning {
+  border-color: rgba(183, 121, 31, 0.48);
+  background: linear-gradient(180deg, #fffdf4, #ffffff 46%);
+}
+
 .timer-stage--danger::before,
 .timer-stage--overtime::before,
 .timer-stage--finished::before {
   border-top-color: var(--danger);
+}
+
+.timer-stage--danger,
+.timer-stage--overtime,
+.timer-stage--finished {
+  border-color: rgba(185, 28, 28, 0.42);
+  background: linear-gradient(180deg, #fff4f4, #ffffff 46%);
 }
 
 .timer-stage--overtime {
@@ -113,9 +132,14 @@ input:disabled {
 }
 
 .timer-stage--focus {
-  width: min(1480px, calc(100vw - 56px));
-  min-height: 0;
-  flex: 1;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  flex: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: clamp(22px, 3vw, 56px);
 }
 
 .stage-header {
@@ -167,6 +191,40 @@ input:disabled {
   text-align: center;
 }
 
+.stage-alert-slot {
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  margin-top: 18px;
+}
+
+.stage-alert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 26px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--normal);
+  box-shadow: 0 12px 28px rgba(36, 50, 43, 0.14);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.timer-stage--warning .stage-alert {
+  color: #2f2410;
+  background: var(--warning-fill);
+  animation: attentionPop 900ms ease-out 2;
+}
+
+.timer-stage--danger .stage-alert,
+.timer-stage--overtime .stage-alert,
+.timer-stage--finished .stage-alert {
+  background: var(--danger);
+  animation: dangerSignal 1300ms ease-in-out infinite;
+}
+
 .time-display {
   margin: 36px auto 20px;
   min-height: 1.12em;
@@ -198,6 +256,40 @@ input:disabled {
   font-size: 1.45rem;
   font-weight: 700;
   text-align: center;
+}
+
+.stage-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.stage-metric {
+  display: grid;
+  min-width: 150px;
+  gap: 4px;
+  padding: 11px 18px;
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.stage-metric strong {
+  color: #20342c;
+  font-family:
+    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stage-metric span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .progress-track {
@@ -287,6 +379,17 @@ input:disabled {
 
 .control-button--primary:hover {
   background: var(--normal-deep);
+}
+
+.control-button--danger {
+  border-color: var(--danger);
+  color: #ffffff;
+  background: var(--danger);
+}
+
+.control-button--danger:hover {
+  border-color: var(--danger-deep);
+  background: var(--danger-deep);
 }
 
 .icon-button {
@@ -431,6 +534,11 @@ input:disabled {
   background: var(--surface-strong);
 }
 
+.reminder-row--invalid {
+  border-color: rgba(185, 28, 28, 0.32);
+  background: #fff7f7;
+}
+
 .reminder-main {
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr) 40px;
@@ -452,6 +560,13 @@ input:disabled {
   min-height: 40px;
 }
 
+.reminder-hint {
+  margin: -2px 0 0;
+  color: var(--danger-deep);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
 .secondary-action {
   width: 100%;
   padding: 0 14px;
@@ -466,28 +581,195 @@ input:disabled {
 }
 
 .fullscreen-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  min-height: calc(100vh - 56px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #f7faf6;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
 }
 
-.fullscreen-view .timer-controls {
-  width: min(860px, calc(100vw - 56px));
+.fullscreen-view--warning {
+  background: #f5c84d;
+}
+
+.fullscreen-view--danger,
+.fullscreen-view--finished {
+  background: #d84b42;
+}
+
+.fullscreen-view--overtime {
+  background: #a92722;
+  animation: fullscreenOvertimePulse 1500ms ease-in-out infinite;
+}
+
+.fullscreen-timer {
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 3.6vh, 34px);
+  width: min(92vw, 1500px);
+  color: #18342f;
+  text-align: center;
+}
+
+.fullscreen-view--warning .fullscreen-timer {
+  color: #3b2a0d;
+}
+
+.fullscreen-view--danger .fullscreen-timer,
+.fullscreen-view--finished .fullscreen-timer,
+.fullscreen-view--overtime .fullscreen-timer {
+  color: #ffffff;
+}
+
+.fullscreen-time {
+  font-family:
+    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
+  font-size: clamp(7rem, 21vw, 20rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fullscreen-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(18px, 4vw, 56px);
+  color: rgba(24, 52, 47, 0.72);
+  font-size: clamp(1.2rem, 2.2vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.fullscreen-view--warning .fullscreen-meta {
+  color: rgba(59, 42, 13, 0.74);
+}
+
+.fullscreen-view--danger .fullscreen-meta,
+.fullscreen-view--finished .fullscreen-meta,
+.fullscreen-view--overtime .fullscreen-meta {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.fullscreen-controls {
+  position: fixed;
+  right: 22px;
+  bottom: 20px;
+  z-index: 9;
+  display: flex;
+  justify-content: flex-end;
+  opacity: 0.34;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.fullscreen-controls:hover,
+.fullscreen-controls:focus-within {
+  opacity: 1;
+}
+
+.fullscreen-controls .timer-controls {
+  width: auto;
+  min-height: auto;
+  border-color: rgba(255, 255, 255, 0.36);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 12px 30px rgba(24, 32, 28, 0.16);
+  backdrop-filter: blur(12px);
+}
+
+.timer-controls--compact {
+  gap: 6px;
+  padding: 7px;
+  border-radius: 999px;
+}
+
+.timer-controls--compact .control-button,
+.timer-controls--compact .icon-button {
+  width: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 999px;
+  color: #18342f;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.timer-controls--compact .control-button--primary {
+  border-color: rgba(15, 118, 110, 0.18);
+  color: #ffffff;
+  background: var(--normal);
+}
+
+.timer-controls--compact .control-button--danger {
+  border-color: rgba(185, 28, 28, 0.24);
+  color: #ffffff;
+  background: var(--danger);
+}
+
+.timer-controls--compact .control-label {
+  display: none;
+}
+
+.timer-controls--compact .control-button:hover,
+.timer-controls--compact .icon-button:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+}
+
+.timer-controls--compact .control-button--primary:hover {
+  background: var(--normal-deep);
+}
+
+.timer-controls--compact .control-button--danger:hover {
+  background: var(--danger-deep);
 }
 
 .timer-stage--focus .stage-title {
-  font-size: 4rem;
+  font-size: clamp(3rem, 6vw, 5.6rem);
 }
 
 .timer-stage--focus .time-display {
-  font-size: 13rem;
+  margin-top: clamp(22px, 3vw, 42px);
+  font-size: clamp(7rem, 16vw, 15rem);
 }
 
 .timer-stage--focus .stage-secondary {
-  font-size: 2rem;
+  font-size: clamp(1.45rem, 3vw, 2.5rem);
+}
+
+.timer-stage--focus .stage-alert {
+  min-height: clamp(56px, 6vw, 88px);
+  padding: 0 clamp(28px, 5vw, 72px);
+  font-size: clamp(1.6rem, 4vw, 3.4rem);
+}
+
+.timer-stage--focus .stage-metrics {
+  gap: clamp(14px, 2vw, 26px);
+  margin-top: clamp(22px, 3vw, 42px);
+}
+
+.timer-stage--focus .stage-metric {
+  min-width: clamp(170px, 18vw, 260px);
+  padding: clamp(12px, 1.4vw, 20px) clamp(18px, 2vw, 30px);
+}
+
+.timer-stage--focus .stage-metric strong {
+  font-size: clamp(1.65rem, 3vw, 3rem);
+}
+
+.timer-stage--focus .stage-metric span {
+  font-size: clamp(0.95rem, 1.4vw, 1.25rem);
+}
+
+.timer-stage--focus .progress-track {
+  margin-top: clamp(20px, 3vw, 38px);
 }
 
 .toast {
@@ -531,13 +813,113 @@ input:disabled {
   }
 }
 
+@keyframes attentionPop {
+  0% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 rgba(247, 201, 72, 0);
+  }
+
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 14px rgba(247, 201, 72, 0.22);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 12px 28px rgba(36, 50, 43, 0.14);
+  }
+}
+
+@keyframes dangerSignal {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(185, 28, 28, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(185, 28, 28, 0.16);
+  }
+}
+
+@keyframes fullscreenOvertimePulse {
+  0%,
+  100% {
+    background-color: #a92722;
+  }
+
+  50% {
+    background-color: #8f1d1a;
+  }
+}
+
 @media (min-width: 1280px) {
   .time-display {
     font-size: 10.5rem;
   }
 
   .timer-stage--focus .time-display {
-    font-size: 15rem;
+    font-size: clamp(9rem, 16vw, 15rem);
+  }
+}
+
+@media (max-height: 780px) and (min-width: 761px) {
+  .fullscreen-timer {
+    gap: 18px;
+  }
+
+  .fullscreen-time {
+    font-size: clamp(7rem, 18vw, 14rem);
+  }
+
+  .fullscreen-meta {
+    font-size: clamp(1.15rem, 2vw, 1.65rem);
+  }
+
+  .timer-stage--focus {
+    padding: 22px 54px;
+  }
+
+  .timer-stage--focus .stage-header {
+    margin-bottom: 12px;
+  }
+
+  .timer-stage--focus .stage-title {
+    font-size: 3.35rem;
+  }
+
+  .timer-stage--focus .stage-alert-slot {
+    margin-top: 10px;
+  }
+
+  .timer-stage--focus .stage-alert {
+    min-height: 54px;
+    font-size: 1.8rem;
+  }
+
+  .timer-stage--focus .time-display {
+    margin: 18px auto 10px;
+    font-size: 10.75rem;
+  }
+
+  .timer-stage--focus .stage-secondary {
+    font-size: 1.55rem;
+  }
+
+  .timer-stage--focus .stage-metrics {
+    margin-top: 14px;
+  }
+
+  .timer-stage--focus .stage-metric {
+    min-width: 210px;
+    padding: 9px 20px;
+  }
+
+  .timer-stage--focus .stage-metric strong {
+    font-size: 2rem;
+  }
+
+  .timer-stage--focus .progress-track {
+    margin-top: 20px;
   }
 }
 
@@ -559,6 +941,10 @@ input:disabled {
 @media (max-width: 760px) {
   .app-shell {
     padding: 14px;
+  }
+
+  .app-shell--focus {
+    padding: 0;
   }
 
   .timer-stage {
@@ -609,10 +995,28 @@ input:disabled {
   }
 
   .fullscreen-view,
-  .fullscreen-view .timer-controls,
   .timer-stage--focus {
     width: 100%;
-    min-height: auto;
+    min-height: 100vh;
+  }
+
+  .fullscreen-controls {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .fullscreen-controls .timer-controls {
+    width: auto;
+  }
+
+  .fullscreen-time {
+    font-size: clamp(4.5rem, 23vw, 8rem);
+  }
+
+  .fullscreen-meta {
+    display: grid;
+    gap: 8px;
+    font-size: 1rem;
   }
 }
 

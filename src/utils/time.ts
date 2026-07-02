@@ -37,10 +37,11 @@ export function clampReminderSeconds(seconds: number): number {
     return 60;
   }
 
-  return Math.min(MAX_DURATION_SECONDS, Math.max(MIN_DURATION_SECONDS, Math.round(seconds)));
+  return Math.min(MAX_DURATION_SECONDS, Math.max(0, Math.round(seconds)));
 }
 
 export function createReminderNode(seconds = 30, label = "自定义提醒"): ReminderNode {
+  const normalizedSeconds = clampReminderSeconds(seconds);
   const id =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
@@ -49,8 +50,8 @@ export function createReminderNode(seconds = 30, label = "自定义提醒"): Rem
   return {
     id,
     label,
-    seconds: clampReminderSeconds(seconds),
-    enabled: true,
+    seconds: normalizedSeconds,
+    enabled: normalizedSeconds > 0,
   };
 }
 
@@ -102,12 +103,13 @@ export function minuteSecondToSeconds(minutes: number, seconds: number): number 
 
 export function normalizeReminderNode(reminder: ReminderNode, index = 0): ReminderNode {
   const fallback = DEFAULT_REMINDERS[index] ?? createReminderNode();
+  const seconds = clampReminderSeconds(reminder.seconds);
 
   return {
     id: reminder.id || fallback.id,
     label: reminder.label.trim() || fallback.label,
-    seconds: clampReminderSeconds(reminder.seconds),
-    enabled: Boolean(reminder.enabled),
+    seconds,
+    enabled: Boolean(reminder.enabled) && seconds > 0,
   };
 }
 

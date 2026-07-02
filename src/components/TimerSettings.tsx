@@ -148,6 +148,7 @@ export function TimerSettings({
 
       <ReminderConfig
         reminders={settings.reminders}
+        totalSeconds={settings.totalSeconds}
         disabled={isTimingLocked}
         onChange={onReminderChange}
         onAdd={onReminderAdd}

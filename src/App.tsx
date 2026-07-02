@@ -81,7 +81,7 @@ function getSecondaryText(status: TimerStatus, remainingSeconds: number, totalSe
   const forceHours = totalSeconds >= 3600 || Math.abs(remainingSeconds) >= 3600;
 
   if (remainingSeconds < 0) {
-    return `已超时 ${formatClock(Math.abs(remainingSeconds), forceHours)}`;
+    return `已超时 +${formatClock(Math.abs(remainingSeconds), forceHours)}`;
   }
 
   if (status === "idle") {
@@ -93,7 +93,7 @@ function getSecondaryText(status: TimerStatus, remainingSeconds: number, totalSe
   }
 
   if (status === "finished") {
-    return "时间到";
+    return `时间到，用时 ${formatClock(totalSeconds, forceHours)}`;
   }
 
   return `距离结束 ${formatClock(remainingSeconds, forceHours)}`;
@@ -105,6 +105,7 @@ export default function App() {
   const [remainingSeconds, setRemainingSeconds] = useState(settings.totalSeconds);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [notice, setNotice] = useState("");
+  const [isResetArmed, setIsResetArmed] = useState(false);
   const [triggeredKeys, setTriggeredKeys] = useState<Set<string>>(() => new Set());
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -113,6 +114,8 @@ export default function App() {
   const remainingRef = useRef(remainingSeconds);
   const runStartedAtRef = useRef<number | null>(null);
   const baseRemainingRef = useRef(settings.totalSeconds);
+  const resetArmedRef = useRef(false);
+  const resetArmTimeoutRef = useRef<number | null>(null);
   const triggeredRef = useRef<Set<string>>(new Set());
 
   const phase = useMemo(() => getTimerPhase(settings, remainingSeconds, status), [settings, remainingSeconds, status]);
@@ -148,6 +151,16 @@ export default function App() {
   const clearTriggers = useCallback(() => {
     triggeredRef.current = new Set();
     setTriggeredKeys(new Set());
+  }, []);
+
+  const clearResetArmed = useCallback(() => {
+    resetArmedRef.current = false;
+    setIsResetArmed(false);
+
+    if (resetArmTimeoutRef.current !== null) {
+      window.clearTimeout(resetArmTimeoutRef.current);
+      resetArmTimeoutRef.current = null;
+    }
   }, []);
 
   const markTriggered = useCallback((key: string, soundKind: "reminder" | "timeout", message: string) => {
@@ -232,7 +245,16 @@ export default function App() {
     setSettings((previousSettings) => normalizeSettings(updater(previousSettings)));
   }, []);
 
-  const resetTimer = useCallback(() => {
+  useEffect(
+    () => () => {
+      if (resetArmTimeoutRef.current !== null) {
+        window.clearTimeout(resetArmTimeoutRef.current);
+      }
+    },
+    []
+  );
+
+  const resetTimerNow = useCallback(() => {
     const totalSeconds = settingsRef.current.totalSeconds;
     runStartedAtRef.current = null;
     baseRemainingRef.current = totalSeconds;
@@ -240,13 +262,33 @@ export default function App() {
     setRemainingSeconds(totalSeconds);
     setStatus("idle");
     clearTriggers();
+    clearResetArmed();
     setNotice("已重置");
-  }, [clearTriggers]);
+  }, [clearResetArmed, clearTriggers]);
+
+  const requestResetTimer = useCallback(() => {
+    const isAwaitingResetConfirm = resetArmedRef.current || isResetArmed;
+
+    if (statusRef.current === "running" && !isAwaitingResetConfirm) {
+      resetArmedRef.current = true;
+      setIsResetArmed(true);
+      setNotice("计时正在进行，再按一次确认重置。");
+
+      resetArmTimeoutRef.current = window.setTimeout(() => {
+        clearResetArmed();
+      }, 2800);
+      return;
+    }
+
+    resetTimerNow();
+  }, [clearResetArmed, isResetArmed, resetTimerNow]);
 
   const startOrResumeTimer = useCallback(() => {
     if (statusRef.current === "running") {
       return;
     }
+
+    clearResetArmed();
 
     if (statusRef.current === "idle" || statusRef.current === "finished") {
       clearTriggers();
@@ -260,16 +302,17 @@ export default function App() {
 
     runStartedAtRef.current = Date.now();
     setStatus("running");
-  }, [clearTriggers]);
+  }, [clearResetArmed, clearTriggers]);
 
   const pauseTimer = useCallback(() => {
+    clearResetArmed();
     const currentRemainingSeconds = calculateCurrentRemaining();
     runStartedAtRef.current = null;
     baseRemainingRef.current = currentRemainingSeconds;
     remainingRef.current = currentRemainingSeconds;
     setRemainingSeconds(currentRemainingSeconds);
     setStatus("paused");
-  }, [calculateCurrentRemaining]);
+  }, [calculateCurrentRemaining, clearResetArmed]);
 
   const toggleRunState = useCallback(() => {
     if (statusRef.current === "running") {
@@ -335,12 +378,16 @@ export default function App() {
     setIsFocusMode(true);
 
     try {
-      if (!document.fullscreenElement && rootRef.current?.requestFullscreen) {
+      if (!rootRef.current?.requestFullscreen) {
+        setNotice("已进入大屏展示模式；如需隐藏浏览器工具栏，请手动全屏。");
+        return;
+      }
+
+      if (!document.fullscreenElement) {
         await rootRef.current.requestFullscreen();
       }
     } catch {
-      setIsFocusMode(false);
-      setNotice("无法进入全屏，请检查浏览器权限或手动按 F11。");
+      setNotice("已进入大屏展示模式；浏览器未允许原生全屏，可手动按 F11。");
     }
   }, []);
 
@@ -374,7 +421,9 @@ export default function App() {
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isFullscreen = Boolean(document.fullscreenElement);
-      setIsFocusMode(isFullscreen);
+      if (!isFullscreen) {
+        setIsFocusMode(false);
+      }
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -395,7 +444,7 @@ export default function App() {
 
       if (event.key.toLowerCase() === "r") {
         event.preventDefault();
-        resetTimer();
+        requestResetTimer();
         return;
       }
 
@@ -413,25 +462,23 @@ export default function App() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [exitFullscreen, isFocusMode, resetTimer, toggleFullscreen, toggleRunState]);
+  }, [exitFullscreen, isFocusMode, requestResetTimer, toggleFullscreen, toggleRunState]);
 
   const content = isFocusMode ? (
     <FullscreenView
-      title={displayTitle}
       remainingSeconds={remainingSeconds}
       totalSeconds={settings.totalSeconds}
       phase={phase}
       status={status}
-      statusText={statusText}
-      secondaryText={secondaryText}
       soundEnabled={settings.soundEnabled}
       onToggleRun={toggleRunState}
-      onReset={resetTimer}
+      onReset={requestResetTimer}
       onToggleFullscreen={toggleFullscreen}
       onToggleSound={() =>
         setSettingsSafely((previousSettings) => ({ ...previousSettings, soundEnabled: !previousSettings.soundEnabled }))
       }
       onPreviewSound={previewSound}
+      isResetArmed={isResetArmed}
     />
   ) : (
     <main className="app-layout">
@@ -449,7 +496,7 @@ export default function App() {
           isFocusMode={isFocusMode}
           soundEnabled={settings.soundEnabled}
           onToggleRun={toggleRunState}
-          onReset={resetTimer}
+          onReset={requestResetTimer}
           onToggleFullscreen={toggleFullscreen}
           onToggleSound={() =>
             setSettingsSafely((previousSettings) => ({
@@ -458,6 +505,7 @@ export default function App() {
             }))
           }
           onPreviewSound={previewSound}
+          isResetArmed={isResetArmed}
         />
       </section>
       <TimerSettings
@@ -484,9 +532,9 @@ export default function App() {
   );
 
   return (
-    <div className={`app-shell app-shell--${phase}`} ref={rootRef}>
+    <div className={`app-shell app-shell--${phase} ${isFocusMode ? "app-shell--focus" : ""}`} ref={rootRef}>
       {content}
-      {notice ? (
+      {notice && !isFocusMode ? (
         <div className="toast" role="status">
           {notice}
         </div>
