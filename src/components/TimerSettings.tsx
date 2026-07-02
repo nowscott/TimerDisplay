@@ -97,7 +97,7 @@ export function TimerSettings({
           </div>
           <span className="settings-card-meta">{TIMER_MODE_PRESETS.length} 个预设</span>
         </div>
-        <div className="mode-grid" role="list" aria-label="场景模式">
+        <div className="mode-list" role="list" aria-label="场景模式">
           {TIMER_MODE_PRESETS.map((preset) => {
             const presetSettings = createSettingsFromPreset(preset);
             const durationText = formatClock(preset.totalSeconds, preset.totalSeconds >= 3600);

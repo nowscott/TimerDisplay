@@ -513,22 +513,24 @@ export default function App() {
           phase={phase}
           statusText={statusText}
           secondaryText={secondaryText}
-        />
-        <TimerControls
-          status={status}
-          isFocusMode={isFocusMode}
-          soundEnabled={settings.soundEnabled}
-          onToggleRun={toggleRunState}
-          onReset={requestResetTimer}
-          onToggleFullscreen={toggleFullscreen}
-          onToggleSound={() =>
-            setSettingsSafely((previousSettings) => ({
-              ...previousSettings,
-              soundEnabled: !previousSettings.soundEnabled,
-            }))
+          controls={
+            <TimerControls
+              status={status}
+              isFocusMode={isFocusMode}
+              soundEnabled={settings.soundEnabled}
+              onToggleRun={toggleRunState}
+              onReset={requestResetTimer}
+              onToggleFullscreen={toggleFullscreen}
+              onToggleSound={() =>
+                setSettingsSafely((previousSettings) => ({
+                  ...previousSettings,
+                  soundEnabled: !previousSettings.soundEnabled,
+                }))
+              }
+              onPreviewSound={previewSound}
+              isResetArmed={isResetArmed}
+            />
           }
-          onPreviewSound={previewSound}
-          isResetArmed={isResetArmed}
         />
       </section>
       <TimerSettings

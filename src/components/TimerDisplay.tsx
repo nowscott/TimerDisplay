@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { TimerPhase } from "../types";
 import { formatClock } from "../utils/time";
 
@@ -8,6 +9,7 @@ interface TimerDisplayProps {
   phase: TimerPhase;
   statusText: string;
   secondaryText: string;
+  controls?: ReactNode;
   isFocusMode?: boolean;
 }
 
@@ -38,6 +40,7 @@ export function TimerDisplay({
   phase,
   statusText,
   secondaryText,
+  controls,
   isFocusMode = false,
 }: TimerDisplayProps) {
   const forceHours = totalSeconds >= 3600 || Math.abs(remainingSeconds) >= 3600;
@@ -64,29 +67,32 @@ export function TimerDisplay({
       <h1 className="stage-title" data-testid="timer-title">
         {title}
       </h1>
-      <div className="stage-alert-slot" aria-live="polite">
-        {stageAlertText ? (
-          <div className="stage-alert" data-testid="timer-alert">
-            {stageAlertText}
+      <div className="stage-center">
+        <div className="stage-alert-slot" aria-live="polite">
+          {stageAlertText ? (
+            <div className="stage-alert" data-testid="timer-alert">
+              {stageAlertText}
+            </div>
+          ) : null}
+        </div>
+        <div className="time-display" aria-live="polite" data-testid="time-display">
+          {timeText}
+        </div>
+        <div className="stage-secondary" data-testid="timer-secondary">
+          {secondaryText}
+        </div>
+        <div className="stage-metrics" aria-label="计时概览">
+          <div className="stage-metric" data-testid="timer-elapsed">
+            <strong>{elapsedClock}</strong>
+            <span>已用时</span>
           </div>
-        ) : null}
-      </div>
-      <div className="time-display" aria-live="polite" data-testid="time-display">
-        {timeText}
-      </div>
-      <div className="stage-secondary" data-testid="timer-secondary">
-        {secondaryText}
-      </div>
-      <div className="stage-metrics" aria-label="计时概览">
-        <div className="stage-metric" data-testid="timer-elapsed">
-          <strong>{elapsedClock}</strong>
-          <span>已用时</span>
-        </div>
-        <div className="stage-metric">
-          <strong>{totalClock}</strong>
-          <span>总时长</span>
+          <div className="stage-metric">
+            <strong>{totalClock}</strong>
+            <span>总时长</span>
+          </div>
         </div>
       </div>
+      {controls ? <div className="stage-actions">{controls}</div> : null}
       <div className="progress-track" aria-hidden="true">
         <span className="progress-fill" style={{ width: `${progress}%` }} />
       </div>
