@@ -2,6 +2,7 @@ import type { ReminderNode, TimerSettings } from "../types";
 import { DEFAULT_SETTINGS, normalizeSettings } from "./time";
 
 const STORAGE_KEY = "TimerDisplay.settings.v1";
+const LEGACY_DEFAULT_TITLE = "赛课倒计时";
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -40,8 +41,10 @@ export function loadTimerSettings(): TimerSettings {
       ? parsedValue.reminders.map(parseReminder).filter((reminder): reminder is ReminderNode => Boolean(reminder))
       : DEFAULT_SETTINGS.reminders;
 
+    const storedTitle = typeof parsedValue.title === "string" ? parsedValue.title : DEFAULT_SETTINGS.title;
+
     return normalizeSettings({
-      title: typeof parsedValue.title === "string" ? parsedValue.title : DEFAULT_SETTINGS.title,
+      title: storedTitle === LEGACY_DEFAULT_TITLE ? DEFAULT_SETTINGS.title : storedTitle,
       totalSeconds:
         typeof parsedValue.totalSeconds === "number"
           ? parsedValue.totalSeconds
@@ -55,6 +58,10 @@ export function loadTimerSettings(): TimerSettings {
         typeof parsedValue.allowOvertime === "boolean"
           ? parsedValue.allowOvertime
           : DEFAULT_SETTINGS.allowOvertime,
+      showCurrentTimeInFullscreen:
+        typeof parsedValue.showCurrentTimeInFullscreen === "boolean"
+          ? parsedValue.showCurrentTimeInFullscreen
+          : DEFAULT_SETTINGS.showCurrentTimeInFullscreen,
     });
   } catch {
     return DEFAULT_SETTINGS;

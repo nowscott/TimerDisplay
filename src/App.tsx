@@ -374,6 +374,27 @@ export default function App() {
     [clearTriggers, setSettingsSafely]
   );
 
+  const applyPresetSettings = useCallback(
+    (nextSettings: TimerSettingsType) => {
+      if (statusRef.current === "running") {
+        setNotice("计时进行中，暂停或重置后再切换场景。");
+        return;
+      }
+
+      const normalizedSettings = normalizeSettings(nextSettings);
+      setSettings(normalizedSettings);
+      runStartedAtRef.current = null;
+      baseRemainingRef.current = normalizedSettings.totalSeconds;
+      remainingRef.current = normalizedSettings.totalSeconds;
+      setRemainingSeconds(normalizedSettings.totalSeconds);
+      setStatus("idle");
+      clearTriggers();
+      clearResetArmed();
+      setNotice(`已切换为${normalizedSettings.title}`);
+    },
+    [clearResetArmed, clearTriggers]
+  );
+
   const enterFullscreen = useCallback(async () => {
     setIsFocusMode(true);
 
@@ -466,11 +487,13 @@ export default function App() {
 
   const content = isFocusMode ? (
     <FullscreenView
+      title={displayTitle}
       remainingSeconds={remainingSeconds}
       totalSeconds={settings.totalSeconds}
       phase={phase}
       status={status}
       soundEnabled={settings.soundEnabled}
+      showCurrentTime={settings.showCurrentTimeInFullscreen}
       onToggleRun={toggleRunState}
       onReset={requestResetTimer}
       onToggleFullscreen={toggleFullscreen}
@@ -518,11 +541,18 @@ export default function App() {
           }))
         }
         onDurationChange={updateDuration}
+        onPresetApply={applyPresetSettings}
         onSoundEnabledChange={(enabled) =>
           setSettingsSafely((previousSettings) => ({ ...previousSettings, soundEnabled: enabled }))
         }
         onAllowOvertimeChange={(enabled) =>
           setSettingsSafely((previousSettings) => ({ ...previousSettings, allowOvertime: enabled }))
+        }
+        onShowCurrentTimeInFullscreenChange={(enabled) =>
+          setSettingsSafely((previousSettings) => ({
+            ...previousSettings,
+            showCurrentTimeInFullscreen: enabled,
+          }))
         }
         onReminderChange={updateReminder}
         onReminderAdd={addReminder}

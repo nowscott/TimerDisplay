@@ -62,10 +62,10 @@ export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, on
   }
 
   return (
-    <section className="settings-group">
+    <section className="settings-card">
       <div className="settings-group-title">
         <Bell aria-hidden="true" size={18} />
-        <h2>提醒节点</h2>
+        <h2>提醒</h2>
       </div>
 
       <div className="reminder-list">

@@ -1,4 +1,4 @@
-import type { ReminderNode, TimerSettings } from "../types";
+import type { ReminderNode, TimerModePreset, TimerSettings } from "../types";
 
 export const MIN_DURATION_SECONDS = 1;
 export const MAX_DURATION_SECONDS = 23 * 60 * 60 + 59 * 60 + 59;
@@ -17,12 +17,78 @@ export const DEFAULT_REMINDERS: ReminderNode[] = [
 ];
 
 export const DEFAULT_SETTINGS: TimerSettings = {
-  title: "赛课倒计时",
+  title: "现场计时",
   totalSeconds: 15 * 60,
   reminders: DEFAULT_REMINDERS,
   soundEnabled: true,
   allowOvertime: true,
+  showCurrentTimeInFullscreen: true,
 };
+
+export const TIMER_MODE_PRESETS: TimerModePreset[] = [
+  {
+    id: "speech",
+    label: "演讲模式",
+    title: "演讲计时",
+    totalSeconds: 10 * 60,
+    reminders: [
+      { id: "speech-3-minutes", label: "剩余3分钟", seconds: 3 * 60, enabled: true },
+      { id: "speech-1-minute", label: "剩余1分钟", seconds: 60, enabled: true },
+    ],
+    soundEnabled: true,
+    allowOvertime: true,
+    showCurrentTimeInFullscreen: true,
+  },
+  {
+    id: "classroom",
+    label: "课堂展示",
+    title: "课堂展示计时",
+    totalSeconds: 15 * 60,
+    reminders: [
+      { id: "classroom-5-minutes", label: "剩余5分钟", seconds: 5 * 60, enabled: true },
+      { id: "classroom-1-minute", label: "剩余1分钟", seconds: 60, enabled: true },
+    ],
+    soundEnabled: true,
+    allowOvertime: true,
+    showCurrentTimeInFullscreen: true,
+  },
+  {
+    id: "defense",
+    label: "答辩模式",
+    title: "答辩计时",
+    totalSeconds: 8 * 60,
+    reminders: [
+      { id: "defense-2-minutes", label: "剩余2分钟", seconds: 2 * 60, enabled: true },
+      { id: "defense-30-seconds", label: "剩余30秒", seconds: 30, enabled: true },
+    ],
+    soundEnabled: true,
+    allowOvertime: true,
+    showCurrentTimeInFullscreen: true,
+  },
+  {
+    id: "meeting",
+    label: "会议发言",
+    title: "会议发言计时",
+    totalSeconds: 5 * 60,
+    reminders: [
+      { id: "meeting-1-minute", label: "剩余1分钟", seconds: 60, enabled: true },
+      { id: "meeting-30-seconds", label: "剩余30秒", seconds: 30, enabled: true },
+    ],
+    soundEnabled: true,
+    allowOvertime: false,
+    showCurrentTimeInFullscreen: true,
+  },
+  {
+    id: "free",
+    label: "自由计时",
+    title: "现场计时",
+    totalSeconds: 15 * 60,
+    reminders: DEFAULT_REMINDERS,
+    soundEnabled: true,
+    allowOvertime: true,
+    showCurrentTimeInFullscreen: true,
+  },
+];
 
 export function clampDuration(seconds: number): number {
   if (!Number.isFinite(seconds)) {
@@ -53,6 +119,23 @@ export function createReminderNode(seconds = 30, label = "自定义提醒"): Rem
     seconds: normalizedSeconds,
     enabled: normalizedSeconds > 0,
   };
+}
+
+export function cloneReminderNode(reminder: ReminderNode): ReminderNode {
+  return {
+    ...reminder,
+  };
+}
+
+export function createSettingsFromPreset(preset: TimerModePreset): TimerSettings {
+  return normalizeSettings({
+    title: preset.title,
+    totalSeconds: preset.totalSeconds,
+    reminders: preset.reminders.map(cloneReminderNode),
+    soundEnabled: preset.soundEnabled,
+    allowOvertime: preset.allowOvertime,
+    showCurrentTimeInFullscreen: preset.showCurrentTimeInFullscreen,
+  });
 }
 
 export function splitDuration(totalSeconds: number): { hours: number; minutes: number; seconds: number } {
@@ -120,5 +203,6 @@ export function normalizeSettings(settings: TimerSettings): TimerSettings {
     reminders: settings.reminders.map((reminder, index) => normalizeReminderNode(reminder, index)),
     soundEnabled: Boolean(settings.soundEnabled),
     allowOvertime: Boolean(settings.allowOvertime),
+    showCurrentTimeInFullscreen: Boolean(settings.showCurrentTimeInFullscreen),
   };
 }
