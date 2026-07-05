@@ -4,7 +4,7 @@ import { FullscreenView } from "./components/FullscreenView";
 import { ProjectionChecklist } from "./components/ProjectionChecklist";
 import { TimerControls } from "./components/TimerControls";
 import { TimerDisplay } from "./components/TimerDisplay";
-import type { ReminderNode, TimerPhase, TimerSettings as TimerSettingsType, TimerStatus } from "./types";
+import type { ReminderNode, TimerPhase, TimerSettings as TimerSettingsType, TimerStatus, WakeLockStatus } from "./types";
 import { loadTimerSettings, saveTimerSettings } from "./utils/storage";
 import { DEFAULT_SETTINGS, clampDuration, formatClock, normalizeSettings } from "./utils/time";
 import { playTimerSound } from "./utils/sound";
@@ -100,6 +100,36 @@ function getSecondaryText(status: TimerStatus, remainingSeconds: number, totalSe
   return `距离结束 ${formatClock(remainingSeconds, forceHours)}`;
 }
 
+type ScreenWakeLockSentinel = EventTarget & {
+  readonly released: boolean;
+  release: () => Promise<void>;
+  addEventListener: (
+    type: "release",
+    listener: () => void,
+    options?: boolean | AddEventListenerOptions
+  ) => void;
+};
+
+type ScreenWakeLock = {
+  request: (type: "screen") => Promise<ScreenWakeLockSentinel>;
+};
+
+type WakeLockNavigator = Navigator & {
+  wakeLock?: ScreenWakeLock;
+};
+
+function getScreenWakeLock(): ScreenWakeLock | null {
+  if (typeof navigator === "undefined" || typeof window === "undefined" || !window.isSecureContext) {
+    return null;
+  }
+
+  return (navigator as WakeLockNavigator).wakeLock ?? null;
+}
+
+function getInitialWakeLockStatus(): WakeLockStatus {
+  return getScreenWakeLock() ? "available" : "unsupported";
+}
+
 export default function App() {
   const [settings, setSettings] = useState<TimerSettingsType>(() => loadTimerSettings());
   const [status, setStatus] = useState<TimerStatus>("idle");
@@ -108,8 +138,10 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [isResetArmed, setIsResetArmed] = useState(false);
   const [triggeredKeys, setTriggeredKeys] = useState<Set<string>>(() => new Set());
+  const [wakeLockStatus, setWakeLockStatus] = useState<WakeLockStatus>(() => getInitialWakeLockStatus());
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
   const settingsRef = useRef(settings);
   const statusRef = useRef<TimerStatus>(status);
   const remainingRef = useRef(remainingSeconds);
@@ -139,6 +171,142 @@ export default function App() {
   useEffect(() => {
     remainingRef.current = remainingSeconds;
   }, [remainingSeconds]);
+
+  const requestScreenWakeLock = useCallback(async (showFeedback = true, force = false): Promise<boolean> => {
+    const wakeLock = getScreenWakeLock();
+
+    if (!wakeLock) {
+      setWakeLockStatus("unsupported");
+
+      if (showFeedback) {
+        setNotice("当前浏览器不支持屏幕常亮，请检查系统电源设置。");
+      }
+
+      return false;
+    }
+
+    if (!force && !settingsRef.current.preventDisplaySleep) {
+      setWakeLockStatus("available");
+      return false;
+    }
+
+    if (document.visibilityState !== "visible") {
+      setWakeLockStatus("blocked");
+      return false;
+    }
+
+    if (wakeLockRef.current && !wakeLockRef.current.released) {
+      setWakeLockStatus("active");
+
+      if (showFeedback) {
+        setNotice("屏幕常亮已启用。");
+      }
+
+      return true;
+    }
+
+    setWakeLockStatus("requesting");
+
+    try {
+      const sentinel = await wakeLock.request("screen");
+      wakeLockRef.current = sentinel;
+      setWakeLockStatus("active");
+
+      sentinel.addEventListener("release", () => {
+        if (wakeLockRef.current !== sentinel) {
+          return;
+        }
+
+        wakeLockRef.current = null;
+        setWakeLockStatus(getScreenWakeLock() ? "released" : "unsupported");
+      });
+
+      if (showFeedback) {
+        setNotice("已启用屏幕常亮，投屏时会尽量避免自动息屏。");
+      }
+
+      return true;
+    } catch {
+      wakeLockRef.current = null;
+      setWakeLockStatus(getScreenWakeLock() ? "blocked" : "unsupported");
+
+      if (showFeedback) {
+        setNotice("无法启用屏幕常亮，请允许浏览器权限或检查系统电源设置。");
+      }
+
+      return false;
+    }
+  }, []);
+
+  const releaseScreenWakeLock = useCallback(async (): Promise<void> => {
+    const sentinel = wakeLockRef.current;
+    wakeLockRef.current = null;
+
+    if (sentinel && !sentinel.released) {
+      try {
+        await sentinel.release();
+      } catch {
+        // The browser may release wake locks during visibility changes.
+      }
+    }
+
+    setWakeLockStatus(getScreenWakeLock() ? "available" : "unsupported");
+  }, []);
+
+  useEffect(() => {
+    if (!settings.preventDisplaySleep) {
+      void releaseScreenWakeLock();
+      return;
+    }
+
+    void requestScreenWakeLock(false);
+  }, [releaseScreenWakeLock, requestScreenWakeLock, settings.preventDisplaySleep]);
+
+  useEffect(() => {
+    if (
+      !settings.preventDisplaySleep ||
+      wakeLockStatus === "active" ||
+      wakeLockStatus === "requesting" ||
+      wakeLockStatus === "unsupported"
+    ) {
+      return;
+    }
+
+    const handleFirstInteraction = () => {
+      void requestScreenWakeLock(false);
+    };
+
+    window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
+    window.addEventListener("keydown", handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", handleFirstInteraction);
+      window.removeEventListener("keydown", handleFirstInteraction);
+    };
+  }, [requestScreenWakeLock, settings.preventDisplaySleep, wakeLockStatus]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && settingsRef.current.preventDisplaySleep) {
+        void requestScreenWakeLock(false);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [requestScreenWakeLock]);
+
+  useEffect(
+    () => () => {
+      const sentinel = wakeLockRef.current;
+      wakeLockRef.current = null;
+
+      if (sentinel && !sentinel.released) {
+        void sentinel.release();
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (!notice) {
@@ -245,6 +413,21 @@ export default function App() {
   const setSettingsSafely = useCallback((updater: (previousSettings: TimerSettingsType) => TimerSettingsType) => {
     setSettings((previousSettings) => normalizeSettings(updater(previousSettings)));
   }, []);
+
+  const updatePreventDisplaySleep = useCallback(
+    (enabled: boolean) => {
+      setSettingsSafely((previousSettings) => ({ ...previousSettings, preventDisplaySleep: enabled }));
+
+      if (enabled) {
+        void requestScreenWakeLock(true, true);
+        return;
+      }
+
+      void releaseScreenWakeLock();
+      setNotice("屏幕常亮已关闭。");
+    },
+    [releaseScreenWakeLock, requestScreenWakeLock, setSettingsSafely]
+  );
 
   useEffect(
     () => () => {
@@ -578,6 +761,11 @@ export default function App() {
                 showFullscreenProgress: enabled,
               }))
             }
+            wakeLockStatus={wakeLockStatus}
+            onPreventDisplaySleepChange={updatePreventDisplaySleep}
+            onWakeLockRequest={() => {
+              void requestScreenWakeLock(true);
+            }}
             onReminderChange={updateReminder}
             onReminderAdd={addReminder}
             onReminderRemove={removeReminder}

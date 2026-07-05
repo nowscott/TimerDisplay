@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS: TimerSettings = {
   allowOvertime: true,
   showCurrentTimeInFullscreen: true,
   showFullscreenProgress: true,
+  preventDisplaySleep: true,
 };
 
 export const TIMER_MODE_PRESETS: TimerModePreset[] = [
@@ -40,6 +41,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
+    preventDisplaySleep: true,
   },
   {
     id: "classroom",
@@ -54,6 +56,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
+    preventDisplaySleep: true,
   },
   {
     id: "defense",
@@ -68,6 +71,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
+    preventDisplaySleep: true,
   },
   {
     id: "meeting",
@@ -82,6 +86,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     allowOvertime: false,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
+    preventDisplaySleep: true,
   },
   {
     id: "free",
@@ -93,6 +98,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
+    preventDisplaySleep: true,
   },
 ];
 
@@ -142,6 +148,7 @@ export function createSettingsFromPreset(preset: TimerModePreset): TimerSettings
     allowOvertime: preset.allowOvertime,
     showCurrentTimeInFullscreen: preset.showCurrentTimeInFullscreen,
     showFullscreenProgress: preset.showFullscreenProgress,
+    preventDisplaySleep: preset.preventDisplaySleep,
   });
 }
 
@@ -255,5 +262,6 @@ export function normalizeSettings(settings: TimerSettings): TimerSettings {
     allowOvertime: Boolean(settings.allowOvertime),
     showCurrentTimeInFullscreen: Boolean(settings.showCurrentTimeInFullscreen),
     showFullscreenProgress: Boolean(settings.showFullscreenProgress),
+    preventDisplaySleep: Boolean(settings.preventDisplaySleep),
   };
 }

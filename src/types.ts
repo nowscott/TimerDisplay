@@ -2,6 +2,8 @@ export type TimerStatus = "idle" | "running" | "paused" | "finished";
 
 export type TimerPhase = "normal" | "warning" | "danger" | "overtime" | "finished";
 
+export type WakeLockStatus = "unsupported" | "available" | "requesting" | "active" | "released" | "blocked";
+
 export interface ReminderNode {
   id: string;
   label: string;
@@ -17,6 +19,7 @@ export interface TimerSettings {
   allowOvertime: boolean;
   showCurrentTimeInFullscreen: boolean;
   showFullscreenProgress: boolean;
+  preventDisplaySleep: boolean;
 }
 
 export interface TimerModePreset {
@@ -29,4 +32,5 @@ export interface TimerModePreset {
   allowOvertime: boolean;
   showCurrentTimeInFullscreen: boolean;
   showFullscreenProgress: boolean;
+  preventDisplaySleep: boolean;
 }

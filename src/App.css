@@ -847,6 +847,57 @@ input:disabled {
   accent-color: #37352f;
 }
 
+.wake-lock-status {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 680;
+}
+
+.wake-lock-status--active {
+  border-color: rgba(47, 111, 98, 0.24);
+  color: var(--normal-deep);
+  background: var(--normal-soft);
+}
+
+.wake-lock-status--blocked,
+.wake-lock-status--released {
+  border-color: rgba(154, 106, 22, 0.22);
+  color: #5f4310;
+  background: var(--warning-soft);
+}
+
+.wake-lock-status--unsupported {
+  color: var(--text-subtle);
+  background: var(--surface-muted);
+}
+
+.wake-lock-action {
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(55, 53, 47, 0.18);
+  border-radius: 6px;
+  color: var(--text);
+  background: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 740;
+}
+
+.wake-lock-action:hover {
+  border-color: rgba(55, 53, 47, 0.32);
+  background: #f7f6f3;
+}
+
 .reminder-toolbar,
 .reminder-list {
   display: grid;

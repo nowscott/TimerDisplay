@@ -1,5 +1,5 @@
-import { Bell, Clock3, LayoutTemplate, Monitor, Settings2, Type } from "lucide-react";
-import type { ReminderNode, TimerSettings as TimerSettingsType, TimerStatus } from "../types";
+import { Bell, Clock3, LayoutTemplate, Monitor, MonitorCheck, Settings2, Type } from "lucide-react";
+import type { ReminderNode, TimerSettings as TimerSettingsType, TimerStatus, WakeLockStatus } from "../types";
 import {
   createSettingsFromPreset,
   durationFromParts,
@@ -22,6 +22,9 @@ export interface TimerSettingsProps {
   onAllowOvertimeChange: (enabled: boolean) => void;
   onShowCurrentTimeInFullscreenChange: (enabled: boolean) => void;
   onShowFullscreenProgressChange: (enabled: boolean) => void;
+  wakeLockStatus: WakeLockStatus;
+  onPreventDisplaySleepChange: (enabled: boolean) => void;
+  onWakeLockRequest: () => void;
   onReminderChange: (id: string, reminder: ReminderNode) => void;
   onReminderAdd: (reminder: ReminderNode) => void;
   onReminderRemove: (id: string) => void;
@@ -170,19 +173,29 @@ export function TimerBasicSettings({
 
 interface TimerDisplayOptionsSettingsProps {
   settings: TimerSettingsType;
+  wakeLockStatus: WakeLockStatus;
   onSoundEnabledChange: (enabled: boolean) => void;
   onAllowOvertimeChange: (enabled: boolean) => void;
   onShowCurrentTimeInFullscreenChange: (enabled: boolean) => void;
   onShowFullscreenProgressChange: (enabled: boolean) => void;
+  onPreventDisplaySleepChange: (enabled: boolean) => void;
+  onWakeLockRequest: () => void;
 }
 
 export function TimerDisplayOptionsSettings({
   settings,
+  wakeLockStatus,
   onSoundEnabledChange,
   onAllowOvertimeChange,
   onShowCurrentTimeInFullscreenChange,
   onShowFullscreenProgressChange,
+  onPreventDisplaySleepChange,
+  onWakeLockRequest,
 }: TimerDisplayOptionsSettingsProps) {
+  const wakeLockStatusText = getWakeLockStatusText(wakeLockStatus, settings.preventDisplaySleep);
+  const showWakeLockAction =
+    settings.preventDisplaySleep && wakeLockStatus !== "active" && wakeLockStatus !== "unsupported";
+
   return (
     <div className="toggle-grid">
       <label className="switch-label">
@@ -222,8 +235,56 @@ export function TimerDisplayOptionsSettings({
         />
         <span>全屏显示进度条</span>
       </label>
+      <label className="switch-label">
+        <input
+          type="checkbox"
+          checked={settings.preventDisplaySleep}
+          data-testid="prevent-display-sleep"
+          onChange={(event) => onPreventDisplaySleepChange(event.target.checked)}
+        />
+        <MonitorCheck aria-hidden="true" size={17} />
+        <span>保持屏幕常亮</span>
+      </label>
+      <div className={`wake-lock-status wake-lock-status--${wakeLockStatus}`} data-testid="wake-lock-status">
+        <span aria-live="polite">{wakeLockStatusText}</span>
+        {showWakeLockAction ? (
+          <button
+            className="wake-lock-action"
+            type="button"
+            disabled={wakeLockStatus === "requesting"}
+            data-testid="request-wake-lock"
+            onClick={onWakeLockRequest}
+          >
+            {wakeLockStatus === "requesting" ? "启用中" : "启用常亮"}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
+}
+
+function getWakeLockStatusText(status: WakeLockStatus, enabled: boolean): string {
+  if (!enabled) {
+    return "屏幕常亮已关闭";
+  }
+
+  if (status === "active") {
+    return "屏幕常亮已启用";
+  }
+
+  if (status === "requesting") {
+    return "正在启用屏幕常亮";
+  }
+
+  if (status === "unsupported") {
+    return "当前浏览器不支持屏幕常亮";
+  }
+
+  if (status === "blocked") {
+    return "屏幕常亮需要授权";
+  }
+
+  return "屏幕常亮待启用";
 }
 
 interface TimerReminderSettingsProps {
@@ -265,6 +326,9 @@ export function TimerSettings({
   onAllowOvertimeChange,
   onShowCurrentTimeInFullscreenChange,
   onShowFullscreenProgressChange,
+  wakeLockStatus,
+  onPreventDisplaySleepChange,
+  onWakeLockRequest,
   onReminderChange,
   onReminderAdd,
   onReminderRemove,
@@ -304,10 +368,13 @@ export function TimerSettings({
         </div>
         <TimerDisplayOptionsSettings
           settings={settings}
+          wakeLockStatus={wakeLockStatus}
           onSoundEnabledChange={onSoundEnabledChange}
           onAllowOvertimeChange={onAllowOvertimeChange}
           onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
           onShowFullscreenProgressChange={onShowFullscreenProgressChange}
+          onPreventDisplaySleepChange={onPreventDisplaySleepChange}
+          onWakeLockRequest={onWakeLockRequest}
         />
       </section>
 

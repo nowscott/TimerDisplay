@@ -66,6 +66,10 @@ export function loadTimerSettings(): TimerSettings {
         typeof parsedValue.showFullscreenProgress === "boolean"
           ? parsedValue.showFullscreenProgress
           : DEFAULT_SETTINGS.showFullscreenProgress,
+      preventDisplaySleep:
+        typeof parsedValue.preventDisplaySleep === "boolean"
+          ? parsedValue.preventDisplaySleep
+          : DEFAULT_SETTINGS.preventDisplaySleep,
     });
   } catch {
     return DEFAULT_SETTINGS;

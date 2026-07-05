@@ -1,5 +1,17 @@
 import { useState, type ReactNode } from "react";
-import { Bell, ChevronDown, ChevronRight, Clock3, LayoutTemplate, Monitor, Settings2, Type, Volume2, VolumeX } from "lucide-react";
+import {
+  Bell,
+  ChevronDown,
+  ChevronRight,
+  Clock3,
+  LayoutTemplate,
+  Monitor,
+  MonitorCheck,
+  Settings2,
+  Type,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import type { TimerSettingsProps } from "./TimerSettings";
 import {
   TimerBasicSettings,
@@ -67,6 +79,9 @@ export function ProjectionChecklist({
   onAllowOvertimeChange,
   onShowCurrentTimeInFullscreenChange,
   onShowFullscreenProgressChange,
+  wakeLockStatus,
+  onPreventDisplaySleepChange,
+  onWakeLockRequest,
   onReminderChange,
   onReminderAdd,
   onReminderRemove,
@@ -80,7 +95,15 @@ export function ProjectionChecklist({
     settings.allowOvertime ? "超时继续" : "到点停止",
     settings.showCurrentTimeInFullscreen ? "大屏时钟" : "隐藏时钟",
     settings.showFullscreenProgress ? "进度条开" : "进度条关",
+    settings.preventDisplaySleep ? "防息屏开" : "防息屏关",
   ].join(" / ");
+  const wakeLockSummary = !settings.preventDisplaySleep
+    ? "屏幕常亮已关闭"
+    : wakeLockStatus === "active"
+      ? "屏幕常亮已启用"
+      : wakeLockStatus === "unsupported"
+        ? "浏览器不支持屏幕常亮"
+        : "屏幕常亮待启用";
 
   function toggleSection(section: SidebarSectionKey): void {
     setActiveSection((currentSection) => (currentSection === section ? null : section));
@@ -136,10 +159,13 @@ export function ProjectionChecklist({
         >
           <TimerDisplayOptionsSettings
             settings={settings}
+            wakeLockStatus={wakeLockStatus}
             onSoundEnabledChange={onSoundEnabledChange}
             onAllowOvertimeChange={onAllowOvertimeChange}
             onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
             onShowFullscreenProgressChange={onShowFullscreenProgressChange}
+            onPreventDisplaySleepChange={onPreventDisplaySleepChange}
+            onWakeLockRequest={onWakeLockRequest}
           />
         </SidebarSection>
 
@@ -169,6 +195,10 @@ export function ProjectionChecklist({
         <div>
           <Clock3 aria-hidden="true" size={16} />
           <span>{settings.showFullscreenProgress ? `进度条开启 / 总时长 ${totalText}` : `进度条关闭 / 总时长 ${totalText}`}</span>
+        </div>
+        <div>
+          <MonitorCheck aria-hidden="true" size={16} />
+          <span>{wakeLockSummary}</span>
         </div>
         <div>
           <Settings2 aria-hidden="true" size={16} />
