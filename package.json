@@ -1,6 +1,6 @@
 {
   "name": "timer-display",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "private": false,
   "description": "中文网页现场计时工具，适合课堂、公开课、赛课和会议现场投屏。",
   "license": "MIT",

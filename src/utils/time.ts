@@ -16,9 +16,15 @@ export const DEFAULT_REMINDERS: ReminderNode[] = [
   { id: "reminder-1-minute", label: "剩余1分钟", seconds: 60, enabled: true },
 ];
 
+export const MODE_DEFAULT_TITLES: Record<TimerMode, string> = {
+  countdown: "现场计时",
+  countup: "正计时",
+  clock: "现场时钟",
+};
+
 export const DEFAULT_SETTINGS: TimerSettings = {
   mode: "countdown",
-  title: "现场计时",
+  title: MODE_DEFAULT_TITLES.countdown,
   totalSeconds: 15 * 60,
   reminders: DEFAULT_REMINDERS,
   soundEnabled: true,
@@ -204,6 +210,32 @@ export function normalizeTimerMode(mode: unknown): TimerMode {
 
 export function getMatchingTimerModePreset(settings: TimerSettings): TimerModePreset | null {
   return TIMER_MODE_PRESETS.find((preset) => isSettingsFromPreset(settings, preset)) ?? null;
+}
+
+export function getModeSwitchTitle(currentTitle: string, nextMode: TimerMode): string {
+  const normalizedTitle = currentTitle.trim();
+  const fallbackTitle = MODE_DEFAULT_TITLES[nextMode];
+
+  if (!normalizedTitle) {
+    return fallbackTitle;
+  }
+
+  const modeDefaultTitles = new Set(Object.values(MODE_DEFAULT_TITLES));
+  if (modeDefaultTitles.has(normalizedTitle)) {
+    return fallbackTitle;
+  }
+
+  const preset = TIMER_MODE_PRESETS.find((candidate) => candidate.title === normalizedTitle);
+  if (!preset) {
+    return normalizedTitle;
+  }
+
+  if (nextMode === "countdown") {
+    return preset.title;
+  }
+
+  const activityTitle = preset.title.replace(/计时$/, "").trim();
+  return activityTitle && activityTitle !== "现场" ? activityTitle : fallbackTitle;
 }
 
 export function splitDuration(totalSeconds: number): { hours: number; minutes: number; seconds: number } {

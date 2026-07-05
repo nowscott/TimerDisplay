@@ -13,7 +13,7 @@ import type {
   WakeLockStatus,
 } from "./types";
 import { loadTimerSettings, saveTimerSettings } from "./utils/storage";
-import { DEFAULT_SETTINGS, clampDuration, formatClock, normalizeSettings } from "./utils/time";
+import { DEFAULT_SETTINGS, clampDuration, formatClock, getModeSwitchTitle, normalizeSettings } from "./utils/time";
 import { playTimerSound } from "./utils/sound";
 
 const TIMER_MODE_TABS: Array<{
@@ -718,7 +718,11 @@ export default function App() {
         return;
       }
 
-      const nextSettings = normalizeSettings({ ...settingsRef.current, mode });
+      const nextSettings = normalizeSettings({
+        ...settingsRef.current,
+        mode,
+        title: getModeSwitchTitle(settingsRef.current.title, mode),
+      });
       setSettings(nextSettings);
       runStartedAtRef.current = null;
       baseRemainingRef.current = nextSettings.totalSeconds;
