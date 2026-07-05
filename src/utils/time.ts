@@ -138,6 +138,48 @@ export function createSettingsFromPreset(preset: TimerModePreset): TimerSettings
   });
 }
 
+export function formatReminderSummary(reminders: ReminderNode[]): string {
+  const enabledReminders = reminders.filter((reminder) => reminder.enabled && reminder.seconds > 0);
+
+  if (enabledReminders.length === 0) {
+    return "无提醒";
+  }
+
+  return enabledReminders.map((reminder) => reminder.label).join(" / ");
+}
+
+function isSameReminderSet(firstReminders: ReminderNode[], secondReminders: ReminderNode[]): boolean {
+  if (firstReminders.length !== secondReminders.length) {
+    return false;
+  }
+
+  return firstReminders.every((firstReminder, index) => {
+    const secondReminder = secondReminders[index];
+    return (
+      firstReminder.label === secondReminder.label &&
+      firstReminder.seconds === secondReminder.seconds &&
+      firstReminder.enabled === secondReminder.enabled
+    );
+  });
+}
+
+export function isSettingsFromPreset(settings: TimerSettings, preset: TimerModePreset): boolean {
+  const presetSettings = createSettingsFromPreset(preset);
+
+  return (
+    settings.title === presetSettings.title &&
+    settings.totalSeconds === presetSettings.totalSeconds &&
+    settings.soundEnabled === presetSettings.soundEnabled &&
+    settings.allowOvertime === presetSettings.allowOvertime &&
+    settings.showCurrentTimeInFullscreen === presetSettings.showCurrentTimeInFullscreen &&
+    isSameReminderSet(settings.reminders, presetSettings.reminders)
+  );
+}
+
+export function getMatchingTimerModePreset(settings: TimerSettings): TimerModePreset | null {
+  return TIMER_MODE_PRESETS.find((preset) => isSettingsFromPreset(settings, preset)) ?? null;
+}
+
 export function splitDuration(totalSeconds: number): { hours: number; minutes: number; seconds: number } {
   const normalizedSeconds = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(normalizedSeconds / 3600);

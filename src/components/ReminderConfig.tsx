@@ -7,10 +7,14 @@ import {
   secondsToMinuteSecond,
 } from "../utils/time";
 
+const QUICK_REMINDER_SECONDS = [5 * 60, 3 * 60, 60, 30] as const;
+
 interface ReminderConfigProps {
   reminders: ReminderNode[];
   totalSeconds: number;
   disabled: boolean;
+  asCard?: boolean;
+  showTitle?: boolean;
   onChange: (id: string, nextReminder: ReminderNode) => void;
   onAdd: (reminder: ReminderNode) => void;
   onRemove: (id: string) => void;
@@ -48,7 +52,24 @@ function shouldSyncReminderLabel(label: string, previousSeconds: number): boolea
   );
 }
 
-export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, onAdd, onRemove }: ReminderConfigProps) {
+function getDefaultNewReminderSeconds(totalSeconds: number): number {
+  if (totalSeconds > 30) {
+    return 30;
+  }
+
+  return Math.max(0, totalSeconds - 1);
+}
+
+export function ReminderConfig({
+  reminders,
+  totalSeconds,
+  disabled,
+  asCard = true,
+  showTitle = true,
+  onChange,
+  onAdd,
+  onRemove,
+}: ReminderConfigProps) {
   function updateReminderTime(reminder: ReminderNode, nextSeconds: number): void {
     const normalizedSeconds = clampReminderSeconds(nextSeconds);
     const shouldSyncLabel = shouldSyncReminderLabel(reminder.label, reminder.seconds);
@@ -61,44 +82,73 @@ export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, on
     });
   }
 
-  return (
-    <section className="settings-card">
-      <div className="settings-group-title">
-        <Bell aria-hidden="true" size={18} />
-        <h2>提醒</h2>
+  function addReminderAt(seconds: number): void {
+    onAdd(createReminderNode(seconds, formatReminderLabel(seconds)));
+  }
+
+  const canAddReminder = !disabled && totalSeconds > 1;
+
+  const content = (
+    <>
+      {showTitle ? (
+        <div className="settings-group-title">
+          <Bell aria-hidden="true" size={18} />
+          <h2>提醒</h2>
+        </div>
+      ) : null}
+
+      <div className="reminder-toolbar" aria-label="常用提醒节点">
+        <span className="reminder-toolbar-title">常用节点</span>
+        <div className="reminder-quick-list">
+          {QUICK_REMINDER_SECONDS.map((seconds) => (
+            <button
+              className="reminder-chip"
+              type="button"
+              key={seconds}
+              disabled={!canAddReminder || seconds >= totalSeconds}
+              data-testid={`quick-reminder-${seconds}`}
+              onClick={() => addReminderAt(seconds)}
+            >
+              {formatReminderLabel(seconds)}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="reminder-list">
         {reminders.length === 0 ? <p className="empty-text">暂无提醒节点</p> : null}
         {reminders.map((reminder) => {
           const reminderTime = secondsToMinuteSecond(reminder.seconds);
+          const isEnabled = reminder.enabled && reminder.seconds > 0;
           const isInvalid = reminder.enabled && reminder.seconds >= totalSeconds;
+          const rowClassName = [
+            "reminder-row",
+            !isEnabled ? "reminder-row--off" : "",
+            isInvalid ? "reminder-row--invalid" : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
 
           return (
-            <div className={isInvalid ? "reminder-row reminder-row--invalid" : "reminder-row"} key={reminder.id}>
-              <div className="reminder-main">
-                <label className="switch-label">
+            <div className={rowClassName} key={reminder.id}>
+              <div className="reminder-row-header">
+                <label className="reminder-enable">
                   <input
                     type="checkbox"
-                    checked={reminder.enabled && reminder.seconds > 0}
+                    checked={isEnabled}
                     disabled={disabled || reminder.seconds === 0}
                     data-testid={`reminder-enabled-${reminder.id}`}
                     onChange={(event) =>
                       onChange(reminder.id, { ...reminder, enabled: event.target.checked && reminder.seconds > 0 })
                     }
                   />
-                  <span>启用</span>
+                  <span className="reminder-row-heading">
+                    <span className="reminder-row-title">{reminder.label || formatReminderLabel(reminder.seconds)}</span>
+                    <span className="reminder-row-time">{formatReminderLabel(reminder.seconds)}</span>
+                  </span>
                 </label>
-                <input
-                  className="text-input reminder-name"
-                  value={reminder.label}
-                  disabled={disabled}
-                  aria-label="提醒名称"
-                  data-testid={`reminder-label-${reminder.id}`}
-                  onChange={(event) => onChange(reminder.id, { ...reminder, label: event.target.value })}
-                />
                 <button
-                  className="icon-button icon-button--subtle"
+                  className="icon-button icon-button--subtle reminder-remove-button"
                   type="button"
                   title="删除提醒"
                   disabled={disabled}
@@ -108,9 +158,21 @@ export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, on
                   <Trash2 aria-hidden="true" size={18} />
                 </button>
               </div>
-              <div className="reminder-time-fields">
-                <label className="number-field reminder-number">
-                  <span>分</span>
+
+              <label className="reminder-label-field">
+                <input
+                  className="text-input reminder-name"
+                  value={reminder.label}
+                  disabled={disabled}
+                  aria-label="提醒文案"
+                  data-testid={`reminder-label-${reminder.id}`}
+                  onChange={(event) => onChange(reminder.id, { ...reminder, label: event.target.value })}
+                />
+              </label>
+
+              <div className="reminder-time-editor">
+                <span className="reminder-time-prefix">剩余</span>
+                <label className="reminder-time-field">
                   <input
                     type="number"
                     min={0}
@@ -125,9 +187,9 @@ export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, on
                       )
                     }
                   />
+                  <span>分</span>
                 </label>
-                <label className="number-field reminder-number">
-                  <span>秒</span>
+                <label className="reminder-time-field">
                   <input
                     type="number"
                     min={0}
@@ -142,9 +204,12 @@ export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, on
                       )
                     }
                   />
+                  <span>秒</span>
                 </label>
               </div>
-              {isInvalid ? <p className="reminder-hint">提醒时间需小于总时长才会触发</p> : null}
+              <p className={isInvalid ? "reminder-hint reminder-hint--danger" : "reminder-hint"}>
+                {isInvalid ? "提醒时间需小于总时长才会触发" : isEnabled ? "已启用" : "未启用"}
+              </p>
             </div>
           );
         })}
@@ -153,13 +218,23 @@ export function ReminderConfig({ reminders, totalSeconds, disabled, onChange, on
       <button
         className="secondary-action"
         type="button"
-        disabled={disabled}
+        disabled={!canAddReminder}
         data-testid="add-reminder"
-        onClick={() => onAdd(createReminderNode(30, formatReminderLabel(30)))}
+        onClick={() => addReminderAt(getDefaultNewReminderSeconds(totalSeconds))}
       >
         <Plus aria-hidden="true" size={18} />
-        <span>添加提醒</span>
+        <span>添加自定义提醒</span>
       </button>
+    </>
+  );
+
+  if (!asCard) {
+    return content;
+  }
+
+  return (
+    <section className="settings-card">
+      {content}
     </section>
   );
 }

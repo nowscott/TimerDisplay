@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Clock3 } from "lucide-react";
 import { FullscreenView } from "./components/FullscreenView";
+import { ProjectionChecklist } from "./components/ProjectionChecklist";
 import { TimerControls } from "./components/TimerControls";
 import { TimerDisplay } from "./components/TimerDisplay";
-import { TimerSettings } from "./components/TimerSettings";
 import type { ReminderNode, TimerPhase, TimerSettings as TimerSettingsType, TimerStatus } from "./types";
 import { loadTimerSettings, saveTimerSettings } from "./utils/storage";
 import { DEFAULT_SETTINGS, clampDuration, formatClock, normalizeSettings } from "./utils/time";
@@ -453,6 +454,12 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isFocusMode) {
+        event.preventDefault();
+        void exitFullscreen();
+        return;
+      }
+
       if (isEditableElement(event.target)) {
         return;
       }
@@ -475,10 +482,6 @@ export default function App() {
         return;
       }
 
-      if (event.key === "Escape" && isFocusMode) {
-        event.preventDefault();
-        void exitFullscreen();
-      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -504,63 +507,77 @@ export default function App() {
       isResetArmed={isResetArmed}
     />
   ) : (
-    <main className="app-layout">
-      <section className="timer-column">
-        <TimerDisplay
-          title={displayTitle}
-          remainingSeconds={remainingSeconds}
-          totalSeconds={settings.totalSeconds}
-          phase={phase}
-          statusText={statusText}
-          secondaryText={secondaryText}
-          controls={
-            <TimerControls
-              status={status}
-              isFocusMode={isFocusMode}
-              soundEnabled={settings.soundEnabled}
-              onToggleRun={toggleRunState}
-              onReset={requestResetTimer}
-              onToggleFullscreen={toggleFullscreen}
-              onToggleSound={() =>
-                setSettingsSafely((previousSettings) => ({
-                  ...previousSettings,
-                  soundEnabled: !previousSettings.soundEnabled,
-                }))
+    <>
+      <main className="notion-page">
+        <header className="notion-page-header">
+          <div className="notion-page-icon" aria-hidden="true">
+            <Clock3 size={26} />
+          </div>
+          <div>
+            <span className="notion-page-kicker">TimerDisplay</span>
+            <h1>现场计时</h1>
+          </div>
+        </header>
+
+        <section className="app-layout">
+          <section className="timer-column">
+            <TimerDisplay
+              title={displayTitle}
+              remainingSeconds={remainingSeconds}
+              totalSeconds={settings.totalSeconds}
+              phase={phase}
+              statusText={statusText}
+              secondaryText={secondaryText}
+              controls={
+                <TimerControls
+                  status={status}
+                  isFocusMode={isFocusMode}
+                  soundEnabled={settings.soundEnabled}
+                  onToggleRun={toggleRunState}
+                  onReset={requestResetTimer}
+                  onToggleFullscreen={toggleFullscreen}
+                  onToggleSound={() =>
+                    setSettingsSafely((previousSettings) => ({
+                      ...previousSettings,
+                      soundEnabled: !previousSettings.soundEnabled,
+                    }))
+                  }
+                  onPreviewSound={previewSound}
+                  isResetArmed={isResetArmed}
+                />
               }
-              onPreviewSound={previewSound}
-              isResetArmed={isResetArmed}
             />
-          }
-        />
-      </section>
-      <TimerSettings
-        settings={settings}
-        status={status}
-        onTitleChange={(title) =>
-          setSettings((previousSettings) => ({
-            ...previousSettings,
-            title: title.slice(0, 24),
-          }))
-        }
-        onDurationChange={updateDuration}
-        onPresetApply={applyPresetSettings}
-        onSoundEnabledChange={(enabled) =>
-          setSettingsSafely((previousSettings) => ({ ...previousSettings, soundEnabled: enabled }))
-        }
-        onAllowOvertimeChange={(enabled) =>
-          setSettingsSafely((previousSettings) => ({ ...previousSettings, allowOvertime: enabled }))
-        }
-        onShowCurrentTimeInFullscreenChange={(enabled) =>
-          setSettingsSafely((previousSettings) => ({
-            ...previousSettings,
-            showCurrentTimeInFullscreen: enabled,
-          }))
-        }
-        onReminderChange={updateReminder}
-        onReminderAdd={addReminder}
-        onReminderRemove={removeReminder}
-      />
-    </main>
+          </section>
+          <ProjectionChecklist
+            settings={settings}
+            status={status}
+            onTitleChange={(title) =>
+              setSettings((previousSettings) => ({
+                ...previousSettings,
+                title: title.slice(0, 24),
+              }))
+            }
+            onDurationChange={updateDuration}
+            onPresetApply={applyPresetSettings}
+            onSoundEnabledChange={(enabled) =>
+              setSettingsSafely((previousSettings) => ({ ...previousSettings, soundEnabled: enabled }))
+            }
+            onAllowOvertimeChange={(enabled) =>
+              setSettingsSafely((previousSettings) => ({ ...previousSettings, allowOvertime: enabled }))
+            }
+            onShowCurrentTimeInFullscreenChange={(enabled) =>
+              setSettingsSafely((previousSettings) => ({
+                ...previousSettings,
+                showCurrentTimeInFullscreen: enabled,
+              }))
+            }
+            onReminderChange={updateReminder}
+            onReminderAdd={addReminder}
+            onReminderRemove={removeReminder}
+          />
+        </section>
+      </main>
+    </>
   );
 
   return (

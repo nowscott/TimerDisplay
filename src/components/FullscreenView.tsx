@@ -49,6 +49,7 @@ export function FullscreenView({
     remainingSeconds < 0 ? `+${formatClock(visibleSeconds, forceHours)}` : formatClock(visibleSeconds, forceHours);
   const elapsedSeconds = Math.max(0, totalSeconds - remainingSeconds);
   const elapsedText = formatClock(elapsedSeconds, forceHours || elapsedSeconds >= 3600);
+  const remainingLabel = remainingSeconds < 0 ? "已超时" : "剩余";
   const remainingText =
     remainingSeconds < 0
       ? `+${formatClock(Math.abs(remainingSeconds), forceHours)}`
@@ -80,7 +81,9 @@ export function FullscreenView({
         </div>
         <div className="fullscreen-meta" aria-label="计时概览">
           <span data-testid="timer-elapsed">已进行 {elapsedText}</span>
-          <span data-testid="timer-remaining">剩余 {remainingText}</span>
+          <span data-testid="timer-remaining">
+            {remainingLabel} {remainingText}
+          </span>
         </div>
       </section>
       <div className="fullscreen-controls" aria-label="大屏控制">

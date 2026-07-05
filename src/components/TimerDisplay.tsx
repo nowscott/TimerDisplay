@@ -64,10 +64,10 @@ export function TimerDisplay({
           {statusText}
         </span>
       </div>
-      <h1 className="stage-title" data-testid="timer-title">
-        {title}
-      </h1>
-      <div className="stage-center">
+      <div className="stage-main">
+        <h1 className="stage-title" data-testid="timer-title">
+          {title}
+        </h1>
         <div className="stage-alert-slot" aria-live="polite">
           {stageAlertText ? (
             <div className="stage-alert" data-testid="timer-alert">
@@ -92,9 +92,11 @@ export function TimerDisplay({
           </div>
         </div>
       </div>
-      {controls ? <div className="stage-actions">{controls}</div> : null}
-      <div className="progress-track" aria-hidden="true">
-        <span className="progress-fill" style={{ width: `${progress}%` }} />
+      <div className="stage-footer">
+        {controls ? <div className="stage-actions">{controls}</div> : null}
+        <div className="progress-track" aria-hidden="true">
+          <span className="progress-fill" style={{ width: `${progress}%` }} />
+        </div>
       </div>
     </section>
   );
