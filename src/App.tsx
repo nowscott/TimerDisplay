@@ -497,6 +497,7 @@ export default function App() {
       status={status}
       soundEnabled={settings.soundEnabled}
       showCurrentTime={settings.showCurrentTimeInFullscreen}
+      showProgress={settings.showFullscreenProgress}
       onToggleRun={toggleRunState}
       onReset={requestResetTimer}
       onToggleFullscreen={toggleFullscreen}
@@ -569,6 +570,12 @@ export default function App() {
               setSettingsSafely((previousSettings) => ({
                 ...previousSettings,
                 showCurrentTimeInFullscreen: enabled,
+              }))
+            }
+            onShowFullscreenProgressChange={(enabled) =>
+              setSettingsSafely((previousSettings) => ({
+                ...previousSettings,
+                showFullscreenProgress: enabled,
               }))
             }
             onReminderChange={updateReminder}

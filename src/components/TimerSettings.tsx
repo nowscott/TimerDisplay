@@ -21,6 +21,7 @@ export interface TimerSettingsProps {
   onSoundEnabledChange: (enabled: boolean) => void;
   onAllowOvertimeChange: (enabled: boolean) => void;
   onShowCurrentTimeInFullscreenChange: (enabled: boolean) => void;
+  onShowFullscreenProgressChange: (enabled: boolean) => void;
   onReminderChange: (id: string, reminder: ReminderNode) => void;
   onReminderAdd: (reminder: ReminderNode) => void;
   onReminderRemove: (id: string) => void;
@@ -172,6 +173,7 @@ interface TimerDisplayOptionsSettingsProps {
   onSoundEnabledChange: (enabled: boolean) => void;
   onAllowOvertimeChange: (enabled: boolean) => void;
   onShowCurrentTimeInFullscreenChange: (enabled: boolean) => void;
+  onShowFullscreenProgressChange: (enabled: boolean) => void;
 }
 
 export function TimerDisplayOptionsSettings({
@@ -179,6 +181,7 @@ export function TimerDisplayOptionsSettings({
   onSoundEnabledChange,
   onAllowOvertimeChange,
   onShowCurrentTimeInFullscreenChange,
+  onShowFullscreenProgressChange,
 }: TimerDisplayOptionsSettingsProps) {
   return (
     <div className="toggle-grid">
@@ -209,6 +212,15 @@ export function TimerDisplayOptionsSettings({
         />
         <Monitor aria-hidden="true" size={17} />
         <span>全屏显示真实时间</span>
+      </label>
+      <label className="switch-label">
+        <input
+          type="checkbox"
+          checked={settings.showFullscreenProgress}
+          data-testid="show-fullscreen-progress"
+          onChange={(event) => onShowFullscreenProgressChange(event.target.checked)}
+        />
+        <span>全屏显示进度条</span>
       </label>
     </div>
   );
@@ -252,6 +264,7 @@ export function TimerSettings({
   onSoundEnabledChange,
   onAllowOvertimeChange,
   onShowCurrentTimeInFullscreenChange,
+  onShowFullscreenProgressChange,
   onReminderChange,
   onReminderAdd,
   onReminderRemove,
@@ -294,6 +307,7 @@ export function TimerSettings({
           onSoundEnabledChange={onSoundEnabledChange}
           onAllowOvertimeChange={onAllowOvertimeChange}
           onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
+          onShowFullscreenProgressChange={onShowFullscreenProgressChange}
         />
       </section>
 

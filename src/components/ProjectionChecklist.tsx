@@ -66,6 +66,7 @@ export function ProjectionChecklist({
   onSoundEnabledChange,
   onAllowOvertimeChange,
   onShowCurrentTimeInFullscreenChange,
+  onShowFullscreenProgressChange,
   onReminderChange,
   onReminderAdd,
   onReminderRemove,
@@ -78,6 +79,7 @@ export function ProjectionChecklist({
     settings.soundEnabled ? "提示音开" : "提示音关",
     settings.allowOvertime ? "超时继续" : "到点停止",
     settings.showCurrentTimeInFullscreen ? "大屏时钟" : "隐藏时钟",
+    settings.showFullscreenProgress ? "进度条开" : "进度条关",
   ].join(" / ");
 
   function toggleSection(section: SidebarSectionKey): void {
@@ -137,6 +139,7 @@ export function ProjectionChecklist({
             onSoundEnabledChange={onSoundEnabledChange}
             onAllowOvertimeChange={onAllowOvertimeChange}
             onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
+            onShowFullscreenProgressChange={onShowFullscreenProgressChange}
           />
         </SidebarSection>
 
@@ -165,7 +168,7 @@ export function ProjectionChecklist({
         </div>
         <div>
           <Clock3 aria-hidden="true" size={16} />
-          <span>总时长 {totalText}</span>
+          <span>{settings.showFullscreenProgress ? `进度条开启 / 总时长 ${totalText}` : `进度条关闭 / 总时长 ${totalText}`}</span>
         </div>
         <div>
           <Settings2 aria-hidden="true" size={16} />

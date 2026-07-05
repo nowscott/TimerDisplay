@@ -16,6 +16,7 @@ export interface TimerSettings {
   soundEnabled: boolean;
   allowOvertime: boolean;
   showCurrentTimeInFullscreen: boolean;
+  showFullscreenProgress: boolean;
 }
 
 export interface TimerModePreset {
@@ -27,4 +28,5 @@ export interface TimerModePreset {
   soundEnabled: boolean;
   allowOvertime: boolean;
   showCurrentTimeInFullscreen: boolean;
+  showFullscreenProgress: boolean;
 }

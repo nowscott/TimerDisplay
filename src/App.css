@@ -25,6 +25,11 @@
   --danger-deep: #7c2e28;
   --danger-soft: #f8e9e7;
   --shadow: 0 16px 42px rgba(55, 53, 47, 0.08);
+  --timer-number-font:
+    ui-rounded, "SF Pro Rounded", "Avenir Next", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --timer-number-weight: 560;
+  --timer-number-strong-weight: 560;
 }
 
 * {
@@ -45,6 +50,30 @@ input {
 
 button {
   cursor: pointer;
+}
+
+.time-display,
+.stage-alert,
+.stage-secondary,
+.stage-metric strong,
+.sidebar-section-summary,
+.projection-checklist__quick,
+.mode-card-duration,
+.preset-button,
+.reminder-chip,
+.reminder-row-time,
+.number-field input,
+.reminder-time-field input,
+.fullscreen-clock,
+.fullscreen-time,
+.fullscreen-meta-number {
+  font-family: var(--timer-number-font);
+  font-stretch: normal;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings:
+    "tnum" 1,
+    "lnum" 1;
+  font-weight: var(--timer-number-weight);
 }
 
 button:disabled,
@@ -68,6 +97,8 @@ input:disabled {
 }
 
 .app-shell--focus {
+  height: 100vh;
+  max-height: 100vh;
   padding: 0;
   overflow: hidden;
   background: #f8f7f3;
@@ -270,13 +301,10 @@ input:disabled {
   min-height: 1.02em;
   max-width: 100%;
   color: #2f5f55;
-  font-family:
-    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
-  font-size: clamp(7.6rem, 8.8vw, 10.4rem);
-  font-weight: 760;
+  font-size: clamp(8.2rem, 9.4vw, 11rem);
+  font-weight: var(--timer-number-strong-weight);
   line-height: 1;
   letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
   text-align: center;
   white-space: nowrap;
 }
@@ -295,7 +323,7 @@ input:disabled {
   min-height: 26px;
   color: var(--text-muted);
   font-size: 1rem;
-  font-weight: 650;
+  font-weight: var(--timer-number-weight);
   text-align: center;
 }
 
@@ -319,11 +347,8 @@ input:disabled {
 
 .stage-metric strong {
   color: var(--text);
-  font-family:
-    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
-  font-size: 1.08rem;
+  font-size: 1.12rem;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
 }
 
 .stage-metric span {
@@ -726,11 +751,7 @@ input:disabled {
 
 .mode-card-duration {
   color: #4f4d48;
-  font-family:
-    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
-  font-size: 1.02rem;
-  font-weight: 760;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.06rem;
 }
 
 .mode-card-meta {
@@ -778,9 +799,8 @@ input:disabled {
 
 .number-field input {
   padding: 0 10px;
-  font-weight: 700;
+  font-size: 1rem;
   text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .preset-grid {
@@ -792,7 +812,7 @@ input:disabled {
 .preset-button {
   min-width: 0;
   padding: 0 8px;
-  font-weight: 700;
+  font-weight: var(--timer-number-weight);
 }
 
 .preset-button--active {
@@ -859,7 +879,7 @@ input:disabled {
   color: var(--text);
   background: #ffffff;
   font-size: 0.84rem;
-  font-weight: 720;
+  font-weight: var(--timer-number-weight);
   transition:
     border-color 120ms ease,
     background-color 120ms ease,
@@ -938,7 +958,6 @@ input:disabled {
 .reminder-row-time {
   color: var(--text-subtle);
   font-size: 0.8rem;
-  font-weight: 700;
   line-height: 1.25;
 }
 
@@ -1002,9 +1021,8 @@ input:disabled {
   color: var(--text);
   background: transparent;
   outline: none;
-  font-weight: 760;
+  font-size: 1rem;
   text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 
 .reminder-hint {
@@ -1062,17 +1080,17 @@ input:disabled {
   top: 24px;
   right: 28px;
   z-index: 8;
-  min-width: 118px;
-  padding: 8px 12px;
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 42px;
+  padding: 0 14px;
   border: 1px solid rgba(23, 27, 24, 0.08);
-  border-radius: 8px;
+  border-radius: 999px;
   color: rgba(23, 27, 24, 0.62);
   background: rgba(255, 255, 255, 0.62);
-  font-family:
-    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
   font-size: 1rem;
-  font-weight: 850;
-  font-variant-numeric: tabular-nums;
+  line-height: 1;
   text-align: center;
   backdrop-filter: blur(12px);
 }
@@ -1115,28 +1133,47 @@ input:disabled {
   font-size: 3rem;
   font-weight: 850;
   line-height: 1.15;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .fullscreen-time {
-  font-family:
-    "SFMono-Regular", "Cascadia Mono", "Roboto Mono", "Menlo", "Consolas", monospace;
-  font-size: 17rem;
-  font-weight: 900;
-  line-height: 0.92;
+  font-size: 18.4rem;
+  line-height: 1;
   letter-spacing: 0;
-  font-variant-numeric: tabular-nums;
+  overflow: visible;
   white-space: nowrap;
 }
 
 .fullscreen-meta {
   display: inline-flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: 48px;
+  gap: clamp(32px, 6vw, 72px);
   color: rgba(24, 52, 47, 0.72);
   font-size: 1.65rem;
-  font-weight: 850;
-  line-height: 1.2;
+  font-weight: 720;
+  line-height: 1;
+}
+
+.fullscreen-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36em;
+  min-height: 1.1em;
+}
+
+.fullscreen-meta-label,
+.fullscreen-meta-number {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.fullscreen-meta-number {
+  font-size: 1.08em;
 }
 
 .fullscreen-view--warning .fullscreen-meta {
@@ -1147,6 +1184,104 @@ input:disabled {
 .fullscreen-view--finished .fullscreen-meta,
 .fullscreen-view--overtime .fullscreen-meta {
   color: rgba(255, 255, 255, 0.84);
+}
+
+.fullscreen-view--with-progress,
+.fullscreen-view--with-progress.fullscreen-view--warning,
+.fullscreen-view--with-progress.fullscreen-view--danger,
+.fullscreen-view--with-progress.fullscreen-view--finished,
+.fullscreen-view--with-progress.fullscreen-view--overtime {
+  background: #000000;
+}
+
+.fullscreen-view--with-progress.fullscreen-view--overtime {
+  animation: none;
+}
+
+.fullscreen-view--with-progress .fullscreen-clock {
+  top: clamp(14px, 2.2vw, 24px);
+  right: clamp(14px, 2.2vw, 24px);
+  z-index: 6;
+  width: 126px;
+  height: 38px;
+  padding: 0 12px;
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.62);
+  background: rgba(22, 22, 24, 0.56);
+  font-size: 1rem;
+}
+
+.fullscreen-view--with-progress .fullscreen-timer {
+  position: relative;
+  z-index: 3;
+  justify-items: center;
+  gap: 0;
+  width: min(94vw, 1400px);
+  margin: 0 auto;
+  color: #ffffff;
+  overflow: visible;
+  text-align: center;
+  text-shadow: 0 10px 34px rgba(0, 0, 0, 0.22);
+}
+
+.fullscreen-view--with-progress .fullscreen-title {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + clamp(16px, 3.8vh, 38px));
+  width: max-content;
+  max-width: min(92vw, 1120px);
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 5, 5, 0.42) 0 var(--text-progress, 0%),
+    rgba(255, 255, 255, 0.52) var(--text-progress, 0%) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-size: clamp(1.7rem, 4.2vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  transform: translateX(-50%);
+}
+
+.fullscreen-view--with-progress .fullscreen-time {
+  display: block;
+  color: transparent;
+  background: linear-gradient(90deg, #050505 0 var(--text-progress, 0%), #ffffff var(--text-progress, 0%) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  margin-block: -0.08em;
+  padding-block: 0.08em;
+  font-size: clamp(11.8rem, min(29vw, 56vh), 26rem);
+  line-height: 1;
+  overflow: visible;
+}
+
+.fullscreen-view--with-progress .fullscreen-meta {
+  display: none;
+}
+
+.fullscreen-progress {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #000000;
+  pointer-events: none;
+}
+
+.fullscreen-progress__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 0;
+  background: #ffbd10;
+  will-change: width;
+}
+
+.fullscreen-view--danger .fullscreen-progress__fill,
+.fullscreen-view--overtime .fullscreen-progress__fill {
+  background: #ff453a;
 }
 
 .fullscreen-controls {
@@ -1162,9 +1297,76 @@ input:disabled {
     transform 160ms ease;
 }
 
+.fullscreen-view:not(.fullscreen-view--chrome-hidden) .fullscreen-controls {
+  opacity: 0.9;
+}
+
 .fullscreen-controls:hover,
 .fullscreen-controls:focus-within {
   opacity: 1;
+}
+
+.fullscreen-view--with-progress .fullscreen-controls {
+  bottom: max(150px, calc(env(safe-area-inset-bottom) + 150px));
+}
+
+.fullscreen-standby-controls {
+  position: fixed;
+  right: clamp(18px, 3.6vw, 42px);
+  bottom: max(22px, calc(env(safe-area-inset-bottom) + 22px));
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(4, 56px);
+  gap: 8px;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.fullscreen-view--chrome-hidden .fullscreen-title,
+.fullscreen-view--chrome-hidden .fullscreen-controls,
+.fullscreen-view--chrome-hidden .fullscreen-standby-controls {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.fullscreen-view--with-progress.fullscreen-view--chrome-hidden .fullscreen-title {
+  transform: translateX(-50%) translateY(8px);
+}
+
+.standby-control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(40, 40, 46, 0.88);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.standby-control-button--primary {
+  color: #ffe12e;
+}
+
+.standby-control-button--danger {
+  border-color: rgba(255, 69, 58, 0.34);
+  color: #ff6961;
+}
+
+.standby-control-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(54, 54, 60, 0.92);
 }
 
 .fullscreen-controls .timer-controls {
@@ -1178,12 +1380,14 @@ input:disabled {
 
 .timer-controls--compact {
   gap: 6px;
+  flex-wrap: nowrap;
   padding: 7px;
   border-radius: 999px;
 }
 
 .timer-controls--compact .control-button,
 .timer-controls--compact .icon-button {
+  flex: 0 0 42px;
   width: 42px;
   min-width: 42px;
   min-height: 42px;
@@ -1322,7 +1526,7 @@ input:disabled {
   }
 
   .time-display {
-    font-size: clamp(8.8rem, 7vw, 11rem);
+    font-size: clamp(9.2rem, 7.4vw, 11.6rem);
   }
 
   .stage-metric {
@@ -1343,7 +1547,7 @@ input:disabled {
 
 @media (max-width: 1220px) {
   .fullscreen-time {
-    font-size: 13rem;
+    font-size: 14rem;
   }
 }
 
@@ -1366,6 +1570,10 @@ input:disabled {
 @media (max-height: 780px) and (min-width: 761px) {
   .app-shell {
     padding: 16px;
+  }
+
+  .app-shell--focus {
+    padding: 0;
   }
 
   .notion-page {
@@ -1397,7 +1605,7 @@ input:disabled {
   }
 
   .time-display {
-    font-size: clamp(5.9rem, 7.2vw, 7.6rem);
+    font-size: clamp(6.4rem, 7.8vw, 8.2rem);
   }
 
   .stage-metric {
@@ -1422,7 +1630,7 @@ input:disabled {
   }
 
   .fullscreen-time {
-    font-size: 12rem;
+    font-size: 13rem;
   }
 
   .fullscreen-meta {
@@ -1455,7 +1663,7 @@ input:disabled {
   }
 
   .time-display {
-    font-size: 4.5rem;
+    font-size: 4.85rem;
   }
 
   .stage-secondary {
@@ -1515,13 +1723,40 @@ input:disabled {
   }
 
   .fullscreen-time {
-    font-size: 5.4rem;
+    font-size: 6rem;
   }
 
   .fullscreen-meta {
     display: grid;
     gap: 8px;
     font-size: 1rem;
+  }
+
+  .fullscreen-view--with-progress .fullscreen-timer {
+    justify-items: center;
+    width: min(90vw, 620px);
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .fullscreen-view--with-progress .fullscreen-title {
+    font-size: clamp(1.2rem, 8vw, 2.4rem);
+  }
+
+  .fullscreen-view--with-progress .fullscreen-time {
+    font-size: clamp(6.4rem, 30vw, 11rem);
+  }
+
+  .fullscreen-standby-controls {
+    right: 12px;
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 12px));
+    grid-template-columns: repeat(4, 52px);
+    gap: 7px;
+  }
+
+  .standby-control-button {
+    width: 52px;
+    height: 52px;
   }
 }
 
@@ -1542,7 +1777,7 @@ input:disabled {
   }
 
   .time-display {
-    font-size: 3.55rem;
+    font-size: 3.8rem;
   }
 
   .reminder-time-editor {
@@ -1555,6 +1790,15 @@ input:disabled {
   }
 
   .fullscreen-time {
-    font-size: 4.15rem;
+    font-size: 4.65rem;
+  }
+
+  .standby-control-button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fullscreen-standby-controls {
+    grid-template-columns: repeat(4, 48px);
   }
 }

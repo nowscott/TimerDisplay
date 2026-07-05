@@ -23,6 +23,7 @@ export const DEFAULT_SETTINGS: TimerSettings = {
   soundEnabled: true,
   allowOvertime: true,
   showCurrentTimeInFullscreen: true,
+  showFullscreenProgress: true,
 };
 
 export const TIMER_MODE_PRESETS: TimerModePreset[] = [
@@ -38,6 +39,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     soundEnabled: true,
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
+    showFullscreenProgress: true,
   },
   {
     id: "classroom",
@@ -51,6 +53,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     soundEnabled: true,
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
+    showFullscreenProgress: true,
   },
   {
     id: "defense",
@@ -64,6 +67,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     soundEnabled: true,
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
+    showFullscreenProgress: true,
   },
   {
     id: "meeting",
@@ -77,6 +81,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     soundEnabled: true,
     allowOvertime: false,
     showCurrentTimeInFullscreen: true,
+    showFullscreenProgress: true,
   },
   {
     id: "free",
@@ -87,6 +92,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     soundEnabled: true,
     allowOvertime: true,
     showCurrentTimeInFullscreen: true,
+    showFullscreenProgress: true,
   },
 ];
 
@@ -135,6 +141,7 @@ export function createSettingsFromPreset(preset: TimerModePreset): TimerSettings
     soundEnabled: preset.soundEnabled,
     allowOvertime: preset.allowOvertime,
     showCurrentTimeInFullscreen: preset.showCurrentTimeInFullscreen,
+    showFullscreenProgress: preset.showFullscreenProgress,
   });
 }
 
@@ -172,6 +179,7 @@ export function isSettingsFromPreset(settings: TimerSettings, preset: TimerModeP
     settings.soundEnabled === presetSettings.soundEnabled &&
     settings.allowOvertime === presetSettings.allowOvertime &&
     settings.showCurrentTimeInFullscreen === presetSettings.showCurrentTimeInFullscreen &&
+    settings.showFullscreenProgress === presetSettings.showFullscreenProgress &&
     isSameReminderSet(settings.reminders, presetSettings.reminders)
   );
 }
@@ -246,5 +254,6 @@ export function normalizeSettings(settings: TimerSettings): TimerSettings {
     soundEnabled: Boolean(settings.soundEnabled),
     allowOvertime: Boolean(settings.allowOvertime),
     showCurrentTimeInFullscreen: Boolean(settings.showCurrentTimeInFullscreen),
+    showFullscreenProgress: Boolean(settings.showFullscreenProgress),
   };
 }

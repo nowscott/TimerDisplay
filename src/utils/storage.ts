@@ -62,6 +62,10 @@ export function loadTimerSettings(): TimerSettings {
         typeof parsedValue.showCurrentTimeInFullscreen === "boolean"
           ? parsedValue.showCurrentTimeInFullscreen
           : DEFAULT_SETTINGS.showCurrentTimeInFullscreen,
+      showFullscreenProgress:
+        typeof parsedValue.showFullscreenProgress === "boolean"
+          ? parsedValue.showFullscreenProgress
+          : DEFAULT_SETTINGS.showFullscreenProgress,
     });
   } catch {
     return DEFAULT_SETTINGS;
