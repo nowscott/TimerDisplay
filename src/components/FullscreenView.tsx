@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Minimize2, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
-import type { TimerPhase, TimerStatus } from "../types";
-import { formatClock } from "../utils/time";
+import type { TimerMode, TimerPhase, TimerStatus } from "../types";
+import { formatClock, formatCurrentDate, formatCurrentTime } from "../utils/time";
 import { TimerControls } from "./TimerControls";
 
 interface FullscreenViewProps {
+  mode: TimerMode;
   title: string;
   remainingSeconds: number;
+  elapsedSeconds: number;
   totalSeconds: number;
   phase: TimerPhase;
   status: TimerStatus;
@@ -21,18 +23,11 @@ interface FullscreenViewProps {
   onPreviewSound: () => void;
 }
 
-function formatCurrentTime(): string {
-  return new Intl.DateTimeFormat("zh-CN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).format(new Date());
-}
-
 export function FullscreenView({
+  mode,
   title,
   remainingSeconds,
+  elapsedSeconds,
   totalSeconds,
   phase,
   status,
@@ -48,15 +43,24 @@ export function FullscreenView({
 }: FullscreenViewProps) {
   const forceHours = totalSeconds >= 3600 || Math.abs(remainingSeconds) >= 3600;
   const visibleSeconds = Math.abs(remainingSeconds);
-  const timeText =
+  const countdownTimeText =
     remainingSeconds < 0 ? `+${formatClock(visibleSeconds, forceHours)}` : formatClock(visibleSeconds, forceHours);
-  const elapsedSeconds = Math.max(0, totalSeconds - remainingSeconds);
-  const elapsedText = formatClock(elapsedSeconds, forceHours || elapsedSeconds >= 3600);
+  const countdownElapsedSeconds = Math.max(0, totalSeconds - remainingSeconds);
+  const displayElapsedSeconds = mode === "countup" ? elapsedSeconds : countdownElapsedSeconds;
+  const elapsedText = formatClock(displayElapsedSeconds, forceHours || displayElapsedSeconds >= 3600);
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const timeText =
+    mode === "clock"
+      ? formatCurrentTime(currentDate)
+      : mode === "countup"
+        ? formatClock(elapsedSeconds, elapsedSeconds >= 3600)
+        : countdownTimeText;
   const remainingLabel = remainingSeconds < 0 ? "已超时" : "剩余";
   const remainingText =
     remainingSeconds < 0
       ? `+${formatClock(Math.abs(remainingSeconds), forceHours)}`
       : formatClock(remainingSeconds, forceHours);
+  const shouldShowProgress = mode === "countdown" && showProgress;
   const remainingProgress = Math.max(0, Math.min(100, (Math.max(0, remainingSeconds) / totalSeconds) * 100));
   const elapsedProgress = 100 - remainingProgress;
   const progressLabel =
@@ -69,7 +73,6 @@ export function FullscreenView({
           : status === "finished"
             ? "时间到"
             : "计时中";
-  const [currentTime, setCurrentTime] = useState(() => formatCurrentTime());
   const [visualElapsedProgress, setVisualElapsedProgress] = useState(elapsedProgress);
   const [isChromeVisible, setIsChromeVisible] = useState(true);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -81,9 +84,13 @@ export function FullscreenView({
   const resetLabel = isResetArmed ? "确认取消计时" : "取消计时";
   const soundLabel = soundEnabled ? "关闭声音" : "开启声音";
   const progressStyle = { "--fullscreen-progress": `${visualElapsedProgress}%` } as CSSProperties;
+  const fullscreenPhase = mode === "countdown" ? phase : "normal";
+  const fullscreenLabel =
+    mode === "clock" ? "大屏时钟" : mode === "countup" ? "大屏正计时" : "大屏倒计时";
+  const dateText = formatCurrentDate(currentDate);
 
   function syncTextContrastProgress(progress: number): void {
-    if (!showProgress || typeof window === "undefined") {
+    if (!shouldShowProgress || typeof window === "undefined") {
       return;
     }
 
@@ -102,16 +109,16 @@ export function FullscreenView({
   }
 
   useEffect(() => {
-    if (!showCurrentTime) {
+    if (!showCurrentTime && mode !== "clock") {
       return;
     }
 
-    const intervalId = window.setInterval(() => setCurrentTime(formatCurrentTime()), 1000);
+    const intervalId = window.setInterval(() => setCurrentDate(new Date()), 1000);
     return () => window.clearInterval(intervalId);
-  }, [showCurrentTime]);
+  }, [mode, showCurrentTime]);
 
   useEffect(() => {
-    if (!showProgress || status !== "running") {
+    if (!shouldShowProgress || status !== "running") {
       setVisualElapsedProgress(elapsedProgress);
       return;
     }
@@ -134,21 +141,21 @@ export function FullscreenView({
 
     animationFrameId = window.requestAnimationFrame(updateProgress);
     return () => window.cancelAnimationFrame(animationFrameId);
-  }, [elapsedProgress, remainingSeconds, showProgress, status, totalSeconds]);
+  }, [elapsedProgress, remainingSeconds, shouldShowProgress, status, totalSeconds]);
 
   useEffect(() => {
     syncTextContrastProgress(visualElapsedProgress);
   });
 
   useEffect(() => {
-    if (!showProgress) {
+    if (!shouldShowProgress) {
       return;
     }
 
     const handleResize = () => syncTextContrastProgress(visualElapsedProgress);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [showProgress, visualElapsedProgress]);
+  }, [shouldShowProgress, visualElapsedProgress]);
 
   useEffect(() => {
     const showChrome = () => {
@@ -183,17 +190,17 @@ export function FullscreenView({
 
   return (
     <main
-      className={`fullscreen-view fullscreen-view--${phase} ${showProgress ? "fullscreen-view--with-progress" : ""} ${
-        isChromeVisible ? "" : "fullscreen-view--chrome-hidden"
-      }`}
-      style={showProgress ? progressStyle : undefined}
+      className={`fullscreen-view fullscreen-view--${fullscreenPhase} fullscreen-view--mode-${mode} ${
+        shouldShowProgress ? "fullscreen-view--with-progress" : ""
+      } ${isChromeVisible ? "" : "fullscreen-view--chrome-hidden"}`}
+      style={shouldShowProgress ? progressStyle : undefined}
     >
-      {showCurrentTime ? (
+      {showCurrentTime && mode !== "clock" ? (
         <div className="fullscreen-clock" aria-label="当前时间" data-testid="fullscreen-current-time">
-          {currentTime}
+          {formatCurrentTime(currentDate)}
         </div>
       ) : null}
-      <section className="fullscreen-timer" aria-label="大屏倒计时">
+      <section className="fullscreen-timer" aria-label={fullscreenLabel}>
         <h1 className="fullscreen-title" data-testid="fullscreen-title" ref={titleRef}>
           {title}
         </h1>
@@ -201,17 +208,43 @@ export function FullscreenView({
           {timeText}
         </div>
         <div className="fullscreen-meta" aria-label="计时概览">
-          <span className="fullscreen-meta-item" data-testid="timer-elapsed">
-            <span className="fullscreen-meta-label">已进行</span>
-            <span className="fullscreen-meta-number">{elapsedText}</span>
-          </span>
-          <span className="fullscreen-meta-item" data-testid="timer-remaining">
-            <span className="fullscreen-meta-label">{remainingLabel}</span>
-            <span className="fullscreen-meta-number">{remainingText}</span>
-          </span>
+          {mode === "clock" ? (
+            <>
+              <span className="fullscreen-meta-item" data-testid="timer-elapsed">
+                <span className="fullscreen-meta-label">日期</span>
+                <span className="fullscreen-meta-number">{dateText}</span>
+              </span>
+              <span className="fullscreen-meta-item" data-testid="timer-remaining">
+                <span className="fullscreen-meta-label">模式</span>
+                <span className="fullscreen-meta-number">待机时钟</span>
+              </span>
+            </>
+          ) : mode === "countup" ? (
+            <>
+              <span className="fullscreen-meta-item" data-testid="timer-elapsed">
+                <span className="fullscreen-meta-label">已计时</span>
+                <span className="fullscreen-meta-number">{elapsedText}</span>
+              </span>
+              <span className="fullscreen-meta-item" data-testid="timer-remaining">
+                <span className="fullscreen-meta-label">模式</span>
+                <span className="fullscreen-meta-number">正计时</span>
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="fullscreen-meta-item" data-testid="timer-elapsed">
+                <span className="fullscreen-meta-label">已进行</span>
+                <span className="fullscreen-meta-number">{elapsedText}</span>
+              </span>
+              <span className="fullscreen-meta-item" data-testid="timer-remaining">
+                <span className="fullscreen-meta-label">{remainingLabel}</span>
+                <span className="fullscreen-meta-number">{remainingText}</span>
+              </span>
+            </>
+          )}
         </div>
       </section>
-      {showProgress ? (
+      {shouldShowProgress ? (
         <div
           className="fullscreen-progress"
           role="progressbar"
@@ -223,7 +256,7 @@ export function FullscreenView({
           <span className="fullscreen-progress__fill" style={{ width: `${visualElapsedProgress}%` }} />
         </div>
       ) : null}
-      {showProgress ? (
+      {shouldShowProgress ? (
         <div className="fullscreen-standby-controls" aria-label="StandBy 风格计时控制">
           <button
             className="standby-control-button standby-control-button--primary"
@@ -269,6 +302,7 @@ export function FullscreenView({
       ) : (
         <div className="fullscreen-controls" aria-label="大屏控制">
           <TimerControls
+            mode={mode}
             status={status}
             isFocusMode
             soundEnabled={soundEnabled}

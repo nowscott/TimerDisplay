@@ -1,13 +1,31 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Clock3 } from "lucide-react";
+import { Clock3, Hourglass, Timer, TimerReset } from "lucide-react";
 import { FullscreenView } from "./components/FullscreenView";
 import { ProjectionChecklist } from "./components/ProjectionChecklist";
 import { TimerControls } from "./components/TimerControls";
 import { TimerDisplay } from "./components/TimerDisplay";
-import type { ReminderNode, TimerPhase, TimerSettings as TimerSettingsType, TimerStatus, WakeLockStatus } from "./types";
+import type {
+  ReminderNode,
+  TimerMode,
+  TimerPhase,
+  TimerSettings as TimerSettingsType,
+  TimerStatus,
+  WakeLockStatus,
+} from "./types";
 import { loadTimerSettings, saveTimerSettings } from "./utils/storage";
 import { DEFAULT_SETTINGS, clampDuration, formatClock, normalizeSettings } from "./utils/time";
 import { playTimerSound } from "./utils/sound";
+
+const TIMER_MODE_TABS: Array<{
+  mode: TimerMode;
+  label: string;
+  detail: string;
+  icon: typeof Clock3;
+}> = [
+  { mode: "countdown", label: "倒计时", detail: "限时投屏", icon: Hourglass },
+  { mode: "countup", label: "正计时", detail: "从零累计", icon: Timer },
+  { mode: "clock", label: "时钟", detail: "待机展示", icon: Clock3 },
+];
 
 function isEditableElement(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -19,6 +37,10 @@ function isEditableElement(target: EventTarget | null): boolean {
 }
 
 function getTimerPhase(settings: TimerSettingsType, remainingSeconds: number, status: TimerStatus): TimerPhase {
+  if (settings.mode !== "countdown") {
+    return "normal";
+  }
+
   if (status === "finished") {
     return "finished";
   }
@@ -50,7 +72,23 @@ function getTimerPhase(settings: TimerSettingsType, remainingSeconds: number, st
   return "normal";
 }
 
-function getStatusText(status: TimerStatus, phase: TimerPhase): string {
+function getStatusText(mode: TimerMode, status: TimerStatus, phase: TimerPhase): string {
+  if (mode === "clock") {
+    return "实时时钟";
+  }
+
+  if (mode === "countup") {
+    if (status === "idle") {
+      return "准备正计时";
+    }
+
+    if (status === "paused") {
+      return "已暂停";
+    }
+
+    return "正计时中";
+  }
+
   if (status === "idle") {
     return "准备就绪";
   }
@@ -78,7 +116,31 @@ function getStatusText(status: TimerStatus, phase: TimerPhase): string {
   return "计时中";
 }
 
-function getSecondaryText(status: TimerStatus, remainingSeconds: number, totalSeconds: number): string {
+function getSecondaryText(
+  mode: TimerMode,
+  status: TimerStatus,
+  remainingSeconds: number,
+  elapsedSeconds: number,
+  totalSeconds: number
+): string {
+  if (mode === "clock") {
+    return "适合课间、会议间歇和投屏待机";
+  }
+
+  if (mode === "countup") {
+    const elapsedText = formatClock(elapsedSeconds, elapsedSeconds >= 3600);
+
+    if (status === "idle") {
+      return "从 00:00 开始累计";
+    }
+
+    if (status === "paused") {
+      return `暂停在 ${elapsedText}`;
+    }
+
+    return `已累计 ${elapsedText}`;
+  }
+
   const forceHours = totalSeconds >= 3600 || Math.abs(remainingSeconds) >= 3600;
 
   if (remainingSeconds < 0) {
@@ -134,6 +196,7 @@ export default function App() {
   const [settings, setSettings] = useState<TimerSettingsType>(() => loadTimerSettings());
   const [status, setStatus] = useState<TimerStatus>("idle");
   const [remainingSeconds, setRemainingSeconds] = useState(settings.totalSeconds);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [notice, setNotice] = useState("");
   const [isResetArmed, setIsResetArmed] = useState(false);
@@ -145,17 +208,19 @@ export default function App() {
   const settingsRef = useRef(settings);
   const statusRef = useRef<TimerStatus>(status);
   const remainingRef = useRef(remainingSeconds);
+  const elapsedRef = useRef(elapsedSeconds);
   const runStartedAtRef = useRef<number | null>(null);
   const baseRemainingRef = useRef(settings.totalSeconds);
+  const baseElapsedRef = useRef(0);
   const resetArmedRef = useRef(false);
   const resetArmTimeoutRef = useRef<number | null>(null);
   const triggeredRef = useRef<Set<string>>(new Set());
 
   const phase = useMemo(() => getTimerPhase(settings, remainingSeconds, status), [settings, remainingSeconds, status]);
-  const statusText = useMemo(() => getStatusText(status, phase), [status, phase]);
+  const statusText = useMemo(() => getStatusText(settings.mode, status, phase), [settings.mode, status, phase]);
   const secondaryText = useMemo(
-    () => getSecondaryText(status, remainingSeconds, settings.totalSeconds),
-    [status, remainingSeconds, settings.totalSeconds]
+    () => getSecondaryText(settings.mode, status, remainingSeconds, elapsedSeconds, settings.totalSeconds),
+    [elapsedSeconds, remainingSeconds, settings.mode, settings.totalSeconds, status]
   );
   const displayTitle = settings.title.trim() || DEFAULT_SETTINGS.title;
 
@@ -171,6 +236,10 @@ export default function App() {
   useEffect(() => {
     remainingRef.current = remainingSeconds;
   }, [remainingSeconds]);
+
+  useEffect(() => {
+    elapsedRef.current = elapsedSeconds;
+  }, [elapsedSeconds]);
 
   const requestScreenWakeLock = useCallback(async (showFeedback = true, force = false): Promise<boolean> => {
     const wakeLock = getScreenWakeLock();
@@ -355,6 +424,15 @@ export default function App() {
     return baseRemainingRef.current - elapsedSeconds;
   }, []);
 
+  const calculateCurrentElapsed = useCallback(() => {
+    if (statusRef.current !== "running" || runStartedAtRef.current === null) {
+      return elapsedRef.current;
+    }
+
+    const elapsedSinceStart = Math.floor((Date.now() - runStartedAtRef.current) / 1000);
+    return baseElapsedRef.current + elapsedSinceStart;
+  }, []);
+
   const evaluateReminderTriggers = useCallback(
     (nextRemainingSeconds: number) => {
       const activeSettings = settingsRef.current;
@@ -389,6 +467,13 @@ export default function App() {
     }
 
     const intervalId = window.setInterval(() => {
+      if (settingsRef.current.mode === "countup") {
+        const nextElapsedSeconds = calculateCurrentElapsed();
+        elapsedRef.current = nextElapsedSeconds;
+        setElapsedSeconds(nextElapsedSeconds);
+        return;
+      }
+
       const nextRemainingSeconds = calculateCurrentRemaining();
       const activeSettings = settingsRef.current;
 
@@ -408,7 +493,7 @@ export default function App() {
     }, 200);
 
     return () => window.clearInterval(intervalId);
-  }, [calculateCurrentRemaining, evaluateReminderTriggers, status]);
+  }, [calculateCurrentElapsed, calculateCurrentRemaining, evaluateReminderTriggers, status]);
 
   const setSettingsSafely = useCallback((updater: (previousSettings: TimerSettingsType) => TimerSettingsType) => {
     setSettings((previousSettings) => normalizeSettings(updater(previousSettings)));
@@ -439,15 +524,19 @@ export default function App() {
   );
 
   const resetTimerNow = useCallback(() => {
-    const totalSeconds = settingsRef.current.totalSeconds;
+    const activeSettings = settingsRef.current;
+    const totalSeconds = activeSettings.totalSeconds;
     runStartedAtRef.current = null;
     baseRemainingRef.current = totalSeconds;
     remainingRef.current = totalSeconds;
     setRemainingSeconds(totalSeconds);
+    baseElapsedRef.current = 0;
+    elapsedRef.current = 0;
+    setElapsedSeconds(0);
     setStatus("idle");
     clearTriggers();
     clearResetArmed();
-    setNotice("已重置");
+    setNotice(activeSettings.mode === "clock" ? "时钟模式已准备好" : "已重置");
   }, [clearResetArmed, clearTriggers]);
 
   const requestResetTimer = useCallback(() => {
@@ -472,7 +561,29 @@ export default function App() {
       return;
     }
 
+    const activeMode = settingsRef.current.mode;
+
+    if (activeMode === "clock") {
+      setNotice("时钟模式会自动显示当前时间，可直接进入大屏。");
+      return;
+    }
+
     clearResetArmed();
+
+    if (activeMode === "countup") {
+      if (statusRef.current === "idle" || statusRef.current === "finished") {
+        clearTriggers();
+        elapsedRef.current = 0;
+        setElapsedSeconds(0);
+        baseElapsedRef.current = 0;
+      } else {
+        baseElapsedRef.current = elapsedRef.current;
+      }
+
+      runStartedAtRef.current = Date.now();
+      setStatus("running");
+      return;
+    }
 
     if (statusRef.current === "idle" || statusRef.current === "finished") {
       clearTriggers();
@@ -490,13 +601,24 @@ export default function App() {
 
   const pauseTimer = useCallback(() => {
     clearResetArmed();
+
+    if (settingsRef.current.mode === "countup") {
+      const currentElapsedSeconds = calculateCurrentElapsed();
+      runStartedAtRef.current = null;
+      baseElapsedRef.current = currentElapsedSeconds;
+      elapsedRef.current = currentElapsedSeconds;
+      setElapsedSeconds(currentElapsedSeconds);
+      setStatus("paused");
+      return;
+    }
+
     const currentRemainingSeconds = calculateCurrentRemaining();
     runStartedAtRef.current = null;
     baseRemainingRef.current = currentRemainingSeconds;
     remainingRef.current = currentRemainingSeconds;
     setRemainingSeconds(currentRemainingSeconds);
     setStatus("paused");
-  }, [calculateCurrentRemaining, clearResetArmed]);
+  }, [calculateCurrentElapsed, calculateCurrentRemaining, clearResetArmed]);
 
   const toggleRunState = useCallback(() => {
     if (statusRef.current === "running") {
@@ -517,6 +639,9 @@ export default function App() {
         baseRemainingRef.current = normalizedTotalSeconds;
         remainingRef.current = normalizedTotalSeconds;
         setRemainingSeconds(normalizedTotalSeconds);
+        baseElapsedRef.current = 0;
+        elapsedRef.current = 0;
+        setElapsedSeconds(0);
         setStatus("idle");
         clearTriggers();
       }
@@ -571,10 +696,41 @@ export default function App() {
       baseRemainingRef.current = normalizedSettings.totalSeconds;
       remainingRef.current = normalizedSettings.totalSeconds;
       setRemainingSeconds(normalizedSettings.totalSeconds);
+      baseElapsedRef.current = 0;
+      elapsedRef.current = 0;
+      setElapsedSeconds(0);
       setStatus("idle");
       clearTriggers();
       clearResetArmed();
       setNotice(`已切换为${normalizedSettings.title}`);
+    },
+    [clearResetArmed, clearTriggers]
+  );
+
+  const switchTimerMode = useCallback(
+    (mode: TimerMode) => {
+      if (settingsRef.current.mode === mode) {
+        return;
+      }
+
+      if (statusRef.current === "running") {
+        setNotice("计时进行中，暂停或重置后再切换模式。");
+        return;
+      }
+
+      const nextSettings = normalizeSettings({ ...settingsRef.current, mode });
+      setSettings(nextSettings);
+      runStartedAtRef.current = null;
+      baseRemainingRef.current = nextSettings.totalSeconds;
+      remainingRef.current = nextSettings.totalSeconds;
+      setRemainingSeconds(nextSettings.totalSeconds);
+      baseElapsedRef.current = 0;
+      elapsedRef.current = 0;
+      setElapsedSeconds(0);
+      setStatus("idle");
+      clearTriggers();
+      clearResetArmed();
+      setNotice(`已切换为${mode === "countdown" ? "倒计时" : mode === "countup" ? "正计时" : "时钟"}模式`);
     },
     [clearResetArmed, clearTriggers]
   );
@@ -673,8 +829,10 @@ export default function App() {
 
   const content = isFocusMode ? (
     <FullscreenView
+      mode={settings.mode}
       title={displayTitle}
       remainingSeconds={remainingSeconds}
+      elapsedSeconds={elapsedSeconds}
       totalSeconds={settings.totalSeconds}
       phase={phase}
       status={status}
@@ -691,92 +849,118 @@ export default function App() {
       isResetArmed={isResetArmed}
     />
   ) : (
-    <>
-      <main className="notion-page">
-        <header className="notion-page-header">
-          <div className="notion-page-icon" aria-hidden="true">
-            <Clock3 size={26} />
-          </div>
-          <div>
-            <span className="notion-page-kicker">TimerDisplay</span>
-            <h1>现场计时</h1>
-          </div>
-        </header>
+    <main className="timer-workspace">
+      <header className="mode-dock" aria-label="计时模式">
+        <div className="mode-dock-brand">
+          <span className="mode-dock-brand__icon" aria-hidden="true">
+            <TimerReset size={21} />
+          </span>
+          <span className="mode-dock-brand__text">TimerDisplay</span>
+        </div>
+        <div className="mode-tabs" role="tablist" aria-label="当前模式">
+          {TIMER_MODE_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = settings.mode === tab.mode;
 
-        <section className="app-layout">
-          <section className="timer-column">
-            <TimerDisplay
-              title={displayTitle}
-              remainingSeconds={remainingSeconds}
-              totalSeconds={settings.totalSeconds}
-              phase={phase}
-              statusText={statusText}
-              secondaryText={secondaryText}
-              controls={
-                <TimerControls
-                  status={status}
-                  isFocusMode={isFocusMode}
-                  soundEnabled={settings.soundEnabled}
-                  onToggleRun={toggleRunState}
-                  onReset={requestResetTimer}
-                  onToggleFullscreen={toggleFullscreen}
-                  onToggleSound={() =>
-                    setSettingsSafely((previousSettings) => ({
-                      ...previousSettings,
-                      soundEnabled: !previousSettings.soundEnabled,
-                    }))
-                  }
-                  onPreviewSound={previewSound}
-                  isResetArmed={isResetArmed}
-                />
+            return (
+              <button
+                className={isActive ? "mode-tab mode-tab--active" : "mode-tab"}
+                type="button"
+                key={tab.mode}
+                role="tab"
+                aria-selected={isActive}
+                data-testid={`mode-tab-${tab.mode}`}
+                onClick={() => switchTimerMode(tab.mode)}
+              >
+                <Icon aria-hidden="true" size={18} />
+                <span className="mode-tab__label">{tab.label}</span>
+                <span className="mode-tab__detail">{tab.detail}</span>
+              </button>
+            );
+          })}
+        </div>
+      </header>
+
+      <section className="workspace-main" aria-label="计时主内容">
+        <TimerDisplay
+          mode={settings.mode}
+          title={displayTitle}
+          remainingSeconds={remainingSeconds}
+          elapsedSeconds={elapsedSeconds}
+          totalSeconds={settings.totalSeconds}
+          phase={phase}
+          statusText={statusText}
+          secondaryText={secondaryText}
+          controls={
+            <TimerControls
+              mode={settings.mode}
+              status={status}
+              isFocusMode={isFocusMode}
+              soundEnabled={settings.soundEnabled}
+              onToggleRun={toggleRunState}
+              onReset={requestResetTimer}
+              onToggleFullscreen={toggleFullscreen}
+              onToggleSound={() =>
+                setSettingsSafely((previousSettings) => ({
+                  ...previousSettings,
+                  soundEnabled: !previousSettings.soundEnabled,
+                }))
               }
+              onPreviewSound={previewSound}
+              isResetArmed={isResetArmed}
             />
-          </section>
-          <ProjectionChecklist
-            settings={settings}
-            status={status}
-            onTitleChange={(title) =>
-              setSettings((previousSettings) => ({
-                ...previousSettings,
-                title: title.slice(0, 24),
-              }))
-            }
-            onDurationChange={updateDuration}
-            onPresetApply={applyPresetSettings}
-            onSoundEnabledChange={(enabled) =>
-              setSettingsSafely((previousSettings) => ({ ...previousSettings, soundEnabled: enabled }))
-            }
-            onAllowOvertimeChange={(enabled) =>
-              setSettingsSafely((previousSettings) => ({ ...previousSettings, allowOvertime: enabled }))
-            }
-            onShowCurrentTimeInFullscreenChange={(enabled) =>
-              setSettingsSafely((previousSettings) => ({
-                ...previousSettings,
-                showCurrentTimeInFullscreen: enabled,
-              }))
-            }
-            onShowFullscreenProgressChange={(enabled) =>
-              setSettingsSafely((previousSettings) => ({
-                ...previousSettings,
-                showFullscreenProgress: enabled,
-              }))
-            }
-            wakeLockStatus={wakeLockStatus}
-            onPreventDisplaySleepChange={updatePreventDisplaySleep}
-            onWakeLockRequest={() => {
-              void requestScreenWakeLock(true);
-            }}
-            onReminderChange={updateReminder}
-            onReminderAdd={addReminder}
-            onReminderRemove={removeReminder}
-          />
-        </section>
-      </main>
-    </>
+          }
+        />
+      </section>
+
+      <ProjectionChecklist
+        settings={settings}
+        status={status}
+        onTitleChange={(title) =>
+          setSettings((previousSettings) => ({
+            ...previousSettings,
+            title: title.slice(0, 24),
+          }))
+        }
+        onDurationChange={updateDuration}
+        onPresetApply={applyPresetSettings}
+        onSoundEnabledChange={(enabled) =>
+          setSettingsSafely((previousSettings) => ({ ...previousSettings, soundEnabled: enabled }))
+        }
+        onAllowOvertimeChange={(enabled) =>
+          setSettingsSafely((previousSettings) => ({ ...previousSettings, allowOvertime: enabled }))
+        }
+        onShowCurrentTimeInFullscreenChange={(enabled) =>
+          setSettingsSafely((previousSettings) => ({
+            ...previousSettings,
+            showCurrentTimeInFullscreen: enabled,
+          }))
+        }
+        onShowFullscreenProgressChange={(enabled) =>
+          setSettingsSafely((previousSettings) => ({
+            ...previousSettings,
+            showFullscreenProgress: enabled,
+          }))
+        }
+        wakeLockStatus={wakeLockStatus}
+        onPreventDisplaySleepChange={updatePreventDisplaySleep}
+        onWakeLockRequest={() => {
+          void requestScreenWakeLock(true);
+        }}
+        onReminderChange={updateReminder}
+        onReminderAdd={addReminder}
+        onReminderRemove={removeReminder}
+      />
+    </main>
   );
 
   return (
-    <div className={`app-shell app-shell--${phase} ${isFocusMode ? "app-shell--focus" : ""}`} ref={rootRef}>
+    <div
+      className={`app-shell app-shell--${phase} app-shell--mode-${settings.mode} ${
+        isFocusMode ? "app-shell--focus" : ""
+      }`}
+      ref={rootRef}
+    >
       {content}
       {notice && !isFocusMode ? (
         <div className="toast" role="status">

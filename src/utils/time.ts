@@ -1,4 +1,4 @@
-import type { ReminderNode, TimerModePreset, TimerSettings } from "../types";
+import type { ReminderNode, TimerMode, TimerModePreset, TimerSettings } from "../types";
 
 export const MIN_DURATION_SECONDS = 1;
 export const MAX_DURATION_SECONDS = 23 * 60 * 60 + 59 * 60 + 59;
@@ -17,6 +17,7 @@ export const DEFAULT_REMINDERS: ReminderNode[] = [
 ];
 
 export const DEFAULT_SETTINGS: TimerSettings = {
+  mode: "countdown",
   title: "现场计时",
   totalSeconds: 15 * 60,
   reminders: DEFAULT_REMINDERS,
@@ -141,6 +142,7 @@ export function cloneReminderNode(reminder: ReminderNode): ReminderNode {
 
 export function createSettingsFromPreset(preset: TimerModePreset): TimerSettings {
   return normalizeSettings({
+    mode: "countdown",
     title: preset.title,
     totalSeconds: preset.totalSeconds,
     reminders: preset.reminders.map(cloneReminderNode),
@@ -181,6 +183,7 @@ export function isSettingsFromPreset(settings: TimerSettings, preset: TimerModeP
   const presetSettings = createSettingsFromPreset(preset);
 
   return (
+    settings.mode === "countdown" &&
     settings.title === presetSettings.title &&
     settings.totalSeconds === presetSettings.totalSeconds &&
     settings.soundEnabled === presetSettings.soundEnabled &&
@@ -189,6 +192,14 @@ export function isSettingsFromPreset(settings: TimerSettings, preset: TimerModeP
     settings.showFullscreenProgress === presetSettings.showFullscreenProgress &&
     isSameReminderSet(settings.reminders, presetSettings.reminders)
   );
+}
+
+export function normalizeTimerMode(mode: unknown): TimerMode {
+  if (mode === "countup" || mode === "clock") {
+    return mode;
+  }
+
+  return "countdown";
 }
 
 export function getMatchingTimerModePreset(settings: TimerSettings): TimerModePreset | null {
@@ -225,6 +236,23 @@ export function formatClock(totalSeconds: number, forceHours = false): string {
   return `${paddedMinutes}:${paddedSeconds}`;
 }
 
+export function formatCurrentTime(date = new Date()): string {
+  return new Intl.DateTimeFormat("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(date);
+}
+
+export function formatCurrentDate(date = new Date()): string {
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  }).format(date);
+}
+
 export function secondsToMinuteSecond(totalSeconds: number): { minutes: number; seconds: number } {
   const normalizedSeconds = Math.max(0, Math.floor(totalSeconds));
 
@@ -255,6 +283,7 @@ export function normalizeReminderNode(reminder: ReminderNode, index = 0): Remind
 
 export function normalizeSettings(settings: TimerSettings): TimerSettings {
   return {
+    mode: normalizeTimerMode(settings.mode),
     title: settings.title.trim() || DEFAULT_SETTINGS.title,
     totalSeconds: clampDuration(settings.totalSeconds),
     reminders: settings.reminders.map((reminder, index) => normalizeReminderNode(reminder, index)),

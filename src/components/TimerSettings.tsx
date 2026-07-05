@@ -84,6 +84,7 @@ export function TimerBasicSettings({
   const durationParts = splitDuration(settings.totalSeconds);
   const isTimingLocked = status === "running";
   const activePreset = PRESET_SECONDS.find((preset) => preset.seconds === settings.totalSeconds);
+  const durationTitle = settings.mode === "countup" ? "参考时长" : "快捷时长";
 
   function updateDurationPart(part: "hours" | "minutes" | "seconds", value: number): void {
     onDurationChange(
@@ -108,65 +109,71 @@ export function TimerBasicSettings({
           aria-label="显示标题"
         />
       </label>
-      <div className="duration-grid">
-        <label className="number-field">
-          <span>时</span>
-          <input
-            type="number"
-            min={0}
-            max={23}
-            value={durationParts.hours}
-            disabled={isTimingLocked}
-            data-testid="duration-hours"
-            onChange={(event) => updateDurationPart("hours", Number(event.target.value))}
-          />
-        </label>
-        <label className="number-field">
-          <span>分</span>
-          <input
-            type="number"
-            min={0}
-            max={59}
-            value={durationParts.minutes}
-            disabled={isTimingLocked}
-            data-testid="duration-minutes"
-            onChange={(event) => updateDurationPart("minutes", Number(event.target.value))}
-          />
-        </label>
-        <label className="number-field">
-          <span>秒</span>
-          <input
-            type="number"
-            min={0}
-            max={59}
-            value={durationParts.seconds}
-            disabled={isTimingLocked}
-            data-testid="duration-seconds"
-            onChange={(event) => updateDurationPart("seconds", Number(event.target.value))}
-          />
-        </label>
-      </div>
-      <div className="settings-subtitle">
-        <Clock3 aria-hidden="true" size={16} />
-        <span>快捷时长</span>
-      </div>
-      <div className="preset-grid" role="list" aria-label="常用预设">
-        {PRESET_SECONDS.map((preset) => (
-          <button
-            className={activePreset?.seconds === preset.seconds ? "preset-button preset-button--active" : "preset-button"}
-            type="button"
-            key={preset.seconds}
-            disabled={isTimingLocked}
-            data-testid={`preset-${preset.seconds}`}
-            onClick={() => onDurationChange(preset.seconds)}
-          >
-            {preset.label}
-          </button>
-        ))}
-        <button className={!activePreset ? "preset-button preset-button--active" : "preset-button"} type="button" disabled>
-          自定义
-        </button>
-      </div>
+      {settings.mode === "clock" ? (
+        <p className="empty-text">时钟模式不使用时长；标题会显示在普通和全屏时钟上。</p>
+      ) : (
+        <>
+          <div className="duration-grid">
+            <label className="number-field">
+              <span>时</span>
+              <input
+                type="number"
+                min={0}
+                max={23}
+                value={durationParts.hours}
+                disabled={isTimingLocked}
+                data-testid="duration-hours"
+                onChange={(event) => updateDurationPart("hours", Number(event.target.value))}
+              />
+            </label>
+            <label className="number-field">
+              <span>分</span>
+              <input
+                type="number"
+                min={0}
+                max={59}
+                value={durationParts.minutes}
+                disabled={isTimingLocked}
+                data-testid="duration-minutes"
+                onChange={(event) => updateDurationPart("minutes", Number(event.target.value))}
+              />
+            </label>
+            <label className="number-field">
+              <span>秒</span>
+              <input
+                type="number"
+                min={0}
+                max={59}
+                value={durationParts.seconds}
+                disabled={isTimingLocked}
+                data-testid="duration-seconds"
+                onChange={(event) => updateDurationPart("seconds", Number(event.target.value))}
+              />
+            </label>
+          </div>
+          <div className="settings-subtitle">
+            <Clock3 aria-hidden="true" size={16} />
+            <span>{durationTitle}</span>
+          </div>
+          <div className="preset-grid" role="list" aria-label="常用预设">
+            {PRESET_SECONDS.map((preset) => (
+              <button
+                className={activePreset?.seconds === preset.seconds ? "preset-button preset-button--active" : "preset-button"}
+                type="button"
+                key={preset.seconds}
+                disabled={isTimingLocked}
+                data-testid={`preset-${preset.seconds}`}
+                onClick={() => onDurationChange(preset.seconds)}
+              >
+                {preset.label}
+              </button>
+            ))}
+            <button className={!activePreset ? "preset-button preset-button--active" : "preset-button"} type="button" disabled>
+              自定义
+            </button>
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -211,6 +218,7 @@ export function TimerDisplayOptionsSettings({
         <input
           type="checkbox"
           checked={settings.allowOvertime}
+          disabled={settings.mode !== "countdown"}
           data-testid="allow-overtime"
           onChange={(event) => onAllowOvertimeChange(event.target.checked)}
         />
@@ -230,6 +238,7 @@ export function TimerDisplayOptionsSettings({
         <input
           type="checkbox"
           checked={settings.showFullscreenProgress}
+          disabled={settings.mode !== "countdown"}
           data-testid="show-fullscreen-progress"
           onChange={(event) => onShowFullscreenProgressChange(event.target.checked)}
         />

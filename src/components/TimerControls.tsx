@@ -9,8 +9,10 @@ import {
   Waves,
 } from "lucide-react";
 import type { TimerStatus } from "../types";
+import type { TimerMode } from "../types";
 
 interface TimerControlsProps {
+  mode: TimerMode;
   status: TimerStatus;
   isFocusMode: boolean;
   soundEnabled: boolean;
@@ -24,6 +26,7 @@ interface TimerControlsProps {
 }
 
 export function TimerControls({
+  mode,
   status,
   isFocusMode,
   soundEnabled,
@@ -42,6 +45,24 @@ export function TimerControls({
   const resetLabel = isResetArmed ? "确认重置" : "重置";
   const fullscreenLabel = isFocusMode ? "退出大屏" : "进入大屏";
   const soundLabel = soundEnabled ? "关闭声音" : "开启声音";
+
+  if (mode === "clock") {
+    return (
+      <div className={compact ? "timer-controls timer-controls--compact" : "timer-controls"}>
+        <button
+          className="control-button control-button--primary"
+          type="button"
+          title={fullscreenLabel}
+          aria-label={fullscreenLabel}
+          data-testid="toggle-fullscreen"
+          onClick={onToggleFullscreen}
+        >
+          {isFocusMode ? <Minimize2 aria-hidden="true" size={20} /> : <Maximize2 aria-hidden="true" size={20} />}
+          <span className="control-label">{fullscreenLabel}</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={compact ? "timer-controls timer-controls--compact" : "timer-controls"}>

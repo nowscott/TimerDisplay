@@ -2,6 +2,8 @@ export type TimerStatus = "idle" | "running" | "paused" | "finished";
 
 export type TimerPhase = "normal" | "warning" | "danger" | "overtime" | "finished";
 
+export type TimerMode = "countdown" | "countup" | "clock";
+
 export type WakeLockStatus = "unsupported" | "available" | "requesting" | "active" | "released" | "blocked";
 
 export interface ReminderNode {
@@ -12,6 +14,7 @@ export interface ReminderNode {
 }
 
 export interface TimerSettings {
+  mode: TimerMode;
   title: string;
   totalSeconds: number;
   reminders: ReminderNode[];

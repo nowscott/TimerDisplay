@@ -1,5 +1,5 @@
 import type { ReminderNode, TimerSettings } from "../types";
-import { DEFAULT_SETTINGS, normalizeSettings } from "./time";
+import { DEFAULT_SETTINGS, normalizeSettings, normalizeTimerMode } from "./time";
 
 const STORAGE_KEY = "TimerDisplay.settings.v1";
 const LEGACY_DEFAULT_TITLE = "赛课倒计时";
@@ -44,6 +44,7 @@ export function loadTimerSettings(): TimerSettings {
     const storedTitle = typeof parsedValue.title === "string" ? parsedValue.title : DEFAULT_SETTINGS.title;
 
     return normalizeSettings({
+      mode: normalizeTimerMode(parsedValue.mode),
       title: storedTitle === LEGACY_DEFAULT_TITLE ? DEFAULT_SETTINGS.title : storedTitle,
       totalSeconds:
         typeof parsedValue.totalSeconds === "number"

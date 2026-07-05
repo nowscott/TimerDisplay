@@ -1,17 +1,5 @@
 import { useState, type ReactNode } from "react";
-import {
-  Bell,
-  ChevronDown,
-  ChevronRight,
-  Clock3,
-  LayoutTemplate,
-  Monitor,
-  MonitorCheck,
-  Settings2,
-  Type,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { Bell, Clock3, LayoutTemplate, Maximize2, MonitorCheck, Settings2, Type, X } from "lucide-react";
 import type { TimerSettingsProps } from "./TimerSettings";
 import {
   TimerBasicSettings,
@@ -21,51 +9,45 @@ import {
 } from "./TimerSettings";
 import { formatClock, formatReminderSummary, getMatchingTimerModePreset } from "../utils/time";
 
-type SidebarSectionKey = "mode" | "basic" | "display" | "reminders";
+type ConfigSectionKey = "mode" | "basic" | "display" | "reminders";
 
-interface SidebarSectionProps {
-  id: SidebarSectionKey;
+interface ConfigDockButtonProps {
+  id: ConfigSectionKey;
   title: string;
   summary: string;
   icon: ReactNode;
   isActive: boolean;
-  onToggle: (section: SidebarSectionKey) => void;
-  children: ReactNode;
+  disabled?: boolean;
+  onToggle: (section: ConfigSectionKey) => void;
 }
 
-function SidebarSection({ id, title, summary, icon, isActive, onToggle, children }: SidebarSectionProps) {
-  const bodyId = `sidebar-section-${id}-body`;
-
+function ConfigDockButton({
+  id,
+  title,
+  summary,
+  icon,
+  isActive,
+  disabled = false,
+  onToggle,
+}: ConfigDockButtonProps) {
   return (
-    <section
-      className={isActive ? "sidebar-section sidebar-section--active" : "sidebar-section"}
-      data-testid={`sidebar-section-${id}`}
+    <button
+      className={isActive ? "config-dock-button config-dock-button--active" : "config-dock-button"}
+      type="button"
+      disabled={disabled}
+      aria-expanded={isActive}
+      aria-controls={`config-popover-${id}`}
+      data-testid={`config-dock-${id}`}
+      onClick={() => onToggle(id)}
     >
-      <button
-        className="sidebar-section-toggle"
-        type="button"
-        aria-expanded={isActive}
-        aria-controls={bodyId}
-        data-testid={`sidebar-section-toggle-${id}`}
-        onClick={() => onToggle(id)}
-      >
-        <span className="sidebar-section-label">
-          <span className="sidebar-section-icon" aria-hidden="true">
-            {icon}
-          </span>
-          <span>{title}</span>
-        </span>
-        <span className="sidebar-section-side">
-          <span className="sidebar-section-summary">{summary}</span>
-          {isActive ? <ChevronDown aria-hidden="true" size={16} /> : <ChevronRight aria-hidden="true" size={16} />}
-        </span>
-      </button>
-      {isActive ? (
-        <div className="sidebar-section-body" id={bodyId}>
-          {children}
-        </div>
-      ) : null}
-    </section>
+      <span className="config-dock-button__icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="config-dock-button__text">
+        <span>{title}</span>
+        <small>{summary}</small>
+      </span>
+    </button>
   );
 }
 
@@ -86,123 +68,140 @@ export function ProjectionChecklist({
   onReminderAdd,
   onReminderRemove,
 }: TimerSettingsProps) {
-  const [activeSection, setActiveSection] = useState<SidebarSectionKey | null>(null);
+  const [activeSection, setActiveSection] = useState<ConfigSectionKey | null>(null);
   const matchingPreset = getMatchingTimerModePreset(settings);
   const totalText = formatClock(settings.totalSeconds, settings.totalSeconds >= 3600);
-  const reminderText = formatReminderSummary(settings.reminders);
+  const reminderText = settings.mode === "countdown" ? formatReminderSummary(settings.reminders) : "仅倒计时";
   const displaySummary = [
-    settings.soundEnabled ? "提示音开" : "提示音关",
-    settings.allowOvertime ? "超时继续" : "到点停止",
-    settings.showCurrentTimeInFullscreen ? "大屏时钟" : "隐藏时钟",
-    settings.showFullscreenProgress ? "进度条开" : "进度条关",
-    settings.preventDisplaySleep ? "防息屏开" : "防息屏关",
+    settings.showFullscreenProgress && settings.mode === "countdown" ? "进度大屏" : "数字大屏",
+    settings.showCurrentTimeInFullscreen ? "角标时钟" : "隐藏时钟",
+    settings.preventDisplaySleep ? "常亮" : "可息屏",
   ].join(" / ");
-  const wakeLockSummary = !settings.preventDisplaySleep
-    ? "屏幕常亮已关闭"
-    : wakeLockStatus === "active"
-      ? "屏幕常亮已启用"
-      : wakeLockStatus === "unsupported"
-        ? "浏览器不支持屏幕常亮"
-        : "屏幕常亮待启用";
+  const modeSummary =
+    settings.mode === "countdown" ? matchingPreset?.label ?? "自定义" : settings.mode === "countup" ? "从零累计" : "实时时钟";
+  const basicSummary =
+    settings.mode === "clock" ? settings.title || "现场计时" : `${settings.title || "现场计时"} / ${totalText}`;
+  const activeTitle =
+    activeSection === "mode"
+      ? "倒计时场景"
+      : activeSection === "basic"
+        ? "基础配置"
+        : activeSection === "display"
+          ? "显示与投屏"
+          : activeSection === "reminders"
+            ? "提醒节点"
+            : "";
 
-  function toggleSection(section: SidebarSectionKey): void {
+  function toggleSection(section: ConfigSectionKey): void {
     setActiveSection((currentSection) => (currentSection === section ? null : section));
   }
 
   return (
-    <aside className="projection-checklist" aria-label="右侧栏设置">
-      <div className="projection-checklist__header">
-        <div>
-          <span className="projection-checklist__eyebrow">投屏前检查</span>
-          <h2>当前配置</h2>
-        </div>
-        <span className={status === "running" ? "projection-status projection-status--running" : "projection-status"}>
-          {status === "running" ? "计时中" : "可调整"}
-        </span>
-      </div>
+    <aside className="config-dock-shell" aria-label="底部配置栏">
+      {activeSection ? (
+        <section className="config-popover" id={`config-popover-${activeSection}`} aria-label={activeTitle}>
+          <div className="config-popover__header">
+            <div>
+              <span className="config-popover__eyebrow">当前配置</span>
+              <h2>{activeTitle}</h2>
+            </div>
+            <button
+              className="icon-button config-popover__close"
+              type="button"
+              aria-label="关闭配置浮窗"
+              data-testid="config-popover-close"
+              onClick={() => setActiveSection(null)}
+            >
+              <X aria-hidden="true" size={18} />
+            </button>
+          </div>
 
-      <div className="sidebar-sections">
-        <SidebarSection
+          <div className="config-popover__body">
+            {activeSection === "mode" ? (
+              settings.mode === "countdown" ? (
+                <TimerModeSettings settings={settings} status={status} onPresetApply={onPresetApply} />
+              ) : (
+                <p className="empty-text">场景预设只影响倒计时模式。顶部切回倒计时后可继续使用演讲、课堂和会议预设。</p>
+              )
+            ) : null}
+            {activeSection === "basic" ? (
+              <TimerBasicSettings
+                settings={settings}
+                status={status}
+                onTitleChange={onTitleChange}
+                onDurationChange={onDurationChange}
+              />
+            ) : null}
+            {activeSection === "display" ? (
+              <TimerDisplayOptionsSettings
+                settings={settings}
+                wakeLockStatus={wakeLockStatus}
+                onSoundEnabledChange={onSoundEnabledChange}
+                onAllowOvertimeChange={onAllowOvertimeChange}
+                onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
+                onShowFullscreenProgressChange={onShowFullscreenProgressChange}
+                onPreventDisplaySleepChange={onPreventDisplaySleepChange}
+                onWakeLockRequest={onWakeLockRequest}
+              />
+            ) : null}
+            {activeSection === "reminders" ? (
+              settings.mode === "countdown" ? (
+                <TimerReminderSettings
+                  settings={settings}
+                  status={status}
+                  onReminderChange={onReminderChange}
+                  onReminderAdd={onReminderAdd}
+                  onReminderRemove={onReminderRemove}
+                />
+              ) : (
+                <p className="empty-text">提醒节点只用于倒计时模式，正计时和时钟模式不会播放节点提醒。</p>
+              )
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      <div className="config-dock" role="toolbar" aria-label="配置入口">
+        <ConfigDockButton
           id="mode"
           title="场景"
-          summary={matchingPreset?.label ?? "自定义"}
-          icon={<LayoutTemplate size={17} />}
+          summary={modeSummary}
+          icon={<LayoutTemplate size={18} />}
           isActive={activeSection === "mode"}
           onToggle={toggleSection}
-        >
-          <TimerModeSettings settings={settings} status={status} onPresetApply={onPresetApply} />
-        </SidebarSection>
-
-        <SidebarSection
+        />
+        <ConfigDockButton
           id="basic"
           title="基础"
-          summary={`${settings.title || "现场计时"} / ${totalText}`}
-          icon={<Type size={17} />}
+          summary={basicSummary}
+          icon={<Type size={18} />}
           isActive={activeSection === "basic"}
           onToggle={toggleSection}
-        >
-          <TimerBasicSettings
-            settings={settings}
-            status={status}
-            onTitleChange={onTitleChange}
-            onDurationChange={onDurationChange}
-          />
-        </SidebarSection>
-
-        <SidebarSection
+        />
+        <ConfigDockButton
           id="display"
-          title="显示与计时"
+          title="显示"
           summary={displaySummary}
-          icon={settings.soundEnabled ? <Volume2 size={17} /> : <VolumeX size={17} />}
+          icon={<Maximize2 size={18} />}
           isActive={activeSection === "display"}
           onToggle={toggleSection}
-        >
-          <TimerDisplayOptionsSettings
-            settings={settings}
-            wakeLockStatus={wakeLockStatus}
-            onSoundEnabledChange={onSoundEnabledChange}
-            onAllowOvertimeChange={onAllowOvertimeChange}
-            onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
-            onShowFullscreenProgressChange={onShowFullscreenProgressChange}
-            onPreventDisplaySleepChange={onPreventDisplaySleepChange}
-            onWakeLockRequest={onWakeLockRequest}
-          />
-        </SidebarSection>
-
-        <SidebarSection
+        />
+        <ConfigDockButton
           id="reminders"
           title="提醒"
           summary={reminderText}
-          icon={<Bell size={17} />}
+          icon={<Bell size={18} />}
           isActive={activeSection === "reminders"}
+          disabled={settings.mode !== "countdown"}
           onToggle={toggleSection}
-        >
-          <TimerReminderSettings
-            settings={settings}
-            status={status}
-            onReminderChange={onReminderChange}
-            onReminderAdd={onReminderAdd}
-            onReminderRemove={onReminderRemove}
-          />
-        </SidebarSection>
-      </div>
-
-      <div className="projection-checklist__quick">
-        <div>
-          <Monitor aria-hidden="true" size={16} />
-          <span>{settings.showCurrentTimeInFullscreen ? "大屏显示真实时间" : "大屏隐藏真实时间"}</span>
-        </div>
-        <div>
-          <Clock3 aria-hidden="true" size={16} />
-          <span>{settings.showFullscreenProgress ? `进度条开启 / 总时长 ${totalText}` : `进度条关闭 / 总时长 ${totalText}`}</span>
-        </div>
-        <div>
+        />
+        <div className="config-dock-status" aria-live="polite">
           <MonitorCheck aria-hidden="true" size={16} />
-          <span>{wakeLockSummary}</span>
+          <span>{status === "running" ? "运行中" : settings.preventDisplaySleep ? "常亮优先" : "常亮关闭"}</span>
         </div>
-        <div>
-          <Settings2 aria-hidden="true" size={16} />
-          <span>{status === "running" ? "运行中，关键配置已锁定" : "可直接展开调整"}</span>
+        <div className="config-dock-status config-dock-status--clock">
+          <Clock3 aria-hidden="true" size={16} />
+          <span>{settings.showCurrentTimeInFullscreen ? "大屏角标" : "无角标"}</span>
         </div>
       </div>
     </aside>
