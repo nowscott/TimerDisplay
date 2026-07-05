@@ -1,6 +1,6 @@
 {
   "name": "timer-display",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "private": false,
   "description": "中文网页倒计时器，适合课堂、公开课、赛课和会议现场投屏计时。",
   "license": "MIT",

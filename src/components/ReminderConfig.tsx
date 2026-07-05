@@ -144,7 +144,6 @@ export function ReminderConfig({
                   />
                   <span className="reminder-row-heading">
                     <span className="reminder-row-title">{reminder.label || formatReminderLabel(reminder.seconds)}</span>
-                    <span className="reminder-row-time">{formatReminderLabel(reminder.seconds)}</span>
                   </span>
                 </label>
                 <button
