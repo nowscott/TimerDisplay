@@ -26,6 +26,8 @@ const TIMER_MODE_TABS: Array<{
   { mode: "countup", label: "正计时", detail: "从零累计", icon: Timer },
   { mode: "clock", label: "时钟", detail: "待机展示", icon: Clock3 },
 ];
+const APP_VERSION = import.meta.env.VITE_APP_VERSION;
+const GITHUB_URL = "https://github.com/nowscott/TimerDisplay";
 
 function isEditableElement(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -420,7 +422,7 @@ export default function App() {
       return remainingRef.current;
     }
 
-    const elapsedSeconds = Math.floor((Date.now() - runStartedAtRef.current) / 1000);
+    const elapsedSeconds = (Date.now() - runStartedAtRef.current) / 1000;
     return baseRemainingRef.current - elapsedSeconds;
   }, []);
 
@@ -429,7 +431,7 @@ export default function App() {
       return elapsedRef.current;
     }
 
-    const elapsedSinceStart = Math.floor((Date.now() - runStartedAtRef.current) / 1000);
+    const elapsedSinceStart = (Date.now() - runStartedAtRef.current) / 1000;
     return baseElapsedRef.current + elapsedSinceStart;
   }, []);
 
@@ -490,10 +492,10 @@ export default function App() {
       remainingRef.current = nextRemainingSeconds;
       setRemainingSeconds(nextRemainingSeconds);
       evaluateReminderTriggers(nextRemainingSeconds);
-    }, 200);
+    }, settings.showMilliseconds && settings.mode !== "clock" ? 33 : 200);
 
     return () => window.clearInterval(intervalId);
-  }, [calculateCurrentElapsed, calculateCurrentRemaining, evaluateReminderTriggers, status]);
+  }, [calculateCurrentElapsed, calculateCurrentRemaining, evaluateReminderTriggers, settings.mode, settings.showMilliseconds, status]);
 
   const setSettingsSafely = useCallback((updater: (previousSettings: TimerSettingsType) => TimerSettingsType) => {
     setSettings((previousSettings) => normalizeSettings(updater(previousSettings)));
@@ -841,6 +843,7 @@ export default function App() {
       phase={phase}
       status={status}
       soundEnabled={settings.soundEnabled}
+      showMilliseconds={settings.showMilliseconds}
       showCurrentTime={settings.showCurrentTimeInFullscreen}
       showProgress={settings.showFullscreenProgress}
       onToggleRun={toggleRunState}
@@ -859,7 +862,18 @@ export default function App() {
           <span className="mode-dock-brand__icon" aria-hidden="true">
             <TimerReset size={21} />
           </span>
-          <span className="mode-dock-brand__text">TimerDisplay</span>
+          <span className="mode-dock-brand__copy">
+            <span className="mode-dock-brand__text">TimerDisplay</span>
+            <a
+              className="mode-dock-version"
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`TimerDisplay ${APP_VERSION}，在 GitHub 打开`}
+            >
+              v{APP_VERSION}
+            </a>
+          </span>
         </div>
         <div className="mode-tabs" role="tablist" aria-label="当前模式">
           {TIMER_MODE_TABS.map((tab) => {
@@ -895,6 +909,7 @@ export default function App() {
           phase={phase}
           statusText={statusText}
           secondaryText={secondaryText}
+          showMilliseconds={settings.showMilliseconds}
           controls={
             <TimerControls
               mode={settings.mode}
@@ -933,6 +948,9 @@ export default function App() {
         }
         onAllowOvertimeChange={(enabled) =>
           setSettingsSafely((previousSettings) => ({ ...previousSettings, allowOvertime: enabled }))
+        }
+        onShowMillisecondsChange={(enabled) =>
+          setSettingsSafely((previousSettings) => ({ ...previousSettings, showMilliseconds: enabled }))
         }
         onShowCurrentTimeInFullscreenChange={(enabled) =>
           setSettingsSafely((previousSettings) => ({

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Minimize2, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
 import type { TimerMode, TimerPhase, TimerStatus } from "../types";
-import { formatClock, formatCurrentDate, formatCurrentTime } from "../utils/time";
+import { formatClock, formatClockWithMilliseconds, formatCurrentDate, formatCurrentTime } from "../utils/time";
 import { TimerControls } from "./TimerControls";
 
 interface FullscreenViewProps {
@@ -13,6 +13,7 @@ interface FullscreenViewProps {
   phase: TimerPhase;
   status: TimerStatus;
   soundEnabled: boolean;
+  showMilliseconds: boolean;
   showCurrentTime: boolean;
   showProgress: boolean;
   isResetArmed: boolean;
@@ -32,6 +33,7 @@ export function FullscreenView({
   phase,
   status,
   soundEnabled,
+  showMilliseconds,
   showCurrentTime,
   showProgress,
   isResetArmed,
@@ -44,7 +46,15 @@ export function FullscreenView({
   const forceHours = totalSeconds >= 3600 || Math.abs(remainingSeconds) >= 3600;
   const visibleSeconds = Math.abs(remainingSeconds);
   const countdownTimeText =
-    remainingSeconds < 0 ? `+${formatClock(visibleSeconds, forceHours)}` : formatClock(visibleSeconds, forceHours);
+    remainingSeconds < 0
+      ? `+${
+          showMilliseconds
+            ? formatClockWithMilliseconds(visibleSeconds, forceHours)
+            : formatClock(visibleSeconds, forceHours)
+        }`
+      : showMilliseconds
+        ? formatClockWithMilliseconds(visibleSeconds, forceHours)
+        : formatClock(visibleSeconds, forceHours);
   const countdownElapsedSeconds = Math.max(0, totalSeconds - remainingSeconds);
   const displayElapsedSeconds = mode === "countup" ? elapsedSeconds : countdownElapsedSeconds;
   const elapsedText = formatClock(displayElapsedSeconds, forceHours || displayElapsedSeconds >= 3600);
@@ -53,7 +63,9 @@ export function FullscreenView({
     mode === "clock"
       ? formatCurrentTime(currentDate)
       : mode === "countup"
-        ? formatClock(elapsedSeconds, elapsedSeconds >= 3600)
+        ? showMilliseconds
+          ? formatClockWithMilliseconds(elapsedSeconds, elapsedSeconds >= 3600)
+          : formatClock(elapsedSeconds, elapsedSeconds >= 3600)
         : countdownTimeText;
   const remainingLabel = remainingSeconds < 0 ? "已超时" : "剩余";
   const remainingText =
@@ -192,7 +204,9 @@ export function FullscreenView({
     <main
       className={`fullscreen-view fullscreen-view--${fullscreenPhase} fullscreen-view--mode-${mode} ${
         shouldShowProgress ? "fullscreen-view--with-progress" : ""
-      } ${isChromeVisible ? "" : "fullscreen-view--chrome-hidden"}`}
+      } ${showMilliseconds && mode !== "clock" ? "fullscreen-view--milliseconds" : ""} ${
+        isChromeVisible ? "" : "fullscreen-view--chrome-hidden"
+      }`}
       style={shouldShowProgress ? progressStyle : undefined}
     >
       {showCurrentTime && mode !== "clock" ? (
@@ -201,9 +215,11 @@ export function FullscreenView({
         </div>
       ) : null}
       <section className="fullscreen-timer" aria-label={fullscreenLabel}>
-        <h1 className="fullscreen-title" data-testid="fullscreen-title" ref={titleRef}>
-          {title}
-        </h1>
+        {mode !== "clock" ? (
+          <h1 className="fullscreen-title" data-testid="fullscreen-title" ref={titleRef}>
+            {title}
+          </h1>
+        ) : null}
         <div className="fullscreen-time" aria-live="polite" data-testid="time-display" ref={timeRef}>
           {timeText}
         </div>

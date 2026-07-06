@@ -27,8 +27,12 @@
   --shadow: 0 16px 42px rgba(55, 53, 47, 0.08);
   --radius-ui: 22px;
   --radius-pill: 999px;
-  --dock-bg: rgba(255, 255, 255, 0.72);
-  --dock-border: rgba(255, 255, 255, 0.72);
+  --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.42));
+  --glass-bg-strong: linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.58));
+  --glass-border: rgba(255, 255, 255, 0.72);
+  --glass-shadow: 0 22px 70px rgba(55, 53, 47, 0.14);
+  --dock-bg: var(--glass-bg);
+  --dock-border: var(--glass-border);
   --timer-number-font:
     ui-rounded, "SF Pro Rounded", "Avenir Next", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
@@ -136,8 +140,9 @@ input:disabled {
   border: 1px solid var(--dock-border);
   border-radius: var(--radius-pill);
   background: var(--dock-bg);
-  box-shadow: 0 18px 44px rgba(55, 53, 47, 0.12);
-  backdrop-filter: blur(18px);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(1.28);
+  -webkit-backdrop-filter: blur(22px) saturate(1.28);
 }
 
 .mode-dock-brand,
@@ -159,6 +164,13 @@ input:disabled {
   white-space: nowrap;
 }
 
+.mode-dock-brand__copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  line-height: 1.05;
+}
+
 .mode-dock-brand__icon {
   display: grid;
   place-items: center;
@@ -167,6 +179,23 @@ input:disabled {
   border-radius: var(--radius-pill);
   color: #ffffff;
   background: #37352f;
+}
+
+.mode-dock-version {
+  width: max-content;
+  max-width: 100%;
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+  font-weight: 760;
+  text-decoration: none;
+  transition:
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.mode-dock-version:hover {
+  color: var(--text);
+  transform: translateY(-1px);
 }
 
 .mode-tabs {
@@ -232,9 +261,10 @@ input:disabled {
   min-height: 520px;
   border-color: rgba(255, 255, 255, 0.72);
   border-radius: var(--radius-ui);
-  background: rgba(255, 255, 255, 0.74);
-  box-shadow: 0 22px 70px rgba(55, 53, 47, 0.12);
-  backdrop-filter: blur(18px);
+  background: var(--glass-bg-strong);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(1.22);
+  -webkit-backdrop-filter: blur(22px) saturate(1.22);
 }
 
 .timer-stage--mode-countup {
@@ -459,6 +489,10 @@ input:disabled {
   white-space: nowrap;
 }
 
+.timer-stage--milliseconds .time-display {
+  font-size: clamp(5.8rem, 7.3vw, 8.7rem);
+}
+
 .timer-stage--warning .time-display {
   color: #8a5b12;
 }
@@ -559,7 +593,9 @@ input:disabled {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-ui);
-  background: #fbfbfa;
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(14px) saturate(1.12);
+  -webkit-backdrop-filter: blur(14px) saturate(1.12);
 }
 
 .control-button,
@@ -837,8 +873,10 @@ input:disabled {
   padding: 15px;
   border: 1px solid var(--line);
   border-radius: var(--radius-ui);
-  background: #ffffff;
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 12px 34px rgba(55, 53, 47, 0.08);
+  backdrop-filter: blur(18px) saturate(1.16);
+  -webkit-backdrop-filter: blur(18px) saturate(1.16);
 }
 
 .settings-card-header,
@@ -1269,8 +1307,9 @@ input:disabled {
   border: 1px solid var(--dock-border);
   border-radius: var(--radius-pill);
   background: var(--dock-bg);
-  box-shadow: 0 18px 46px rgba(55, 53, 47, 0.14);
-  backdrop-filter: blur(18px);
+  box-shadow: 0 20px 58px rgba(55, 53, 47, 0.16);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
   scrollbar-width: none;
 }
 
@@ -1293,12 +1332,14 @@ input:disabled {
     background-color 140ms ease,
     color 140ms ease,
     transform 140ms ease,
+    box-shadow 140ms ease,
     opacity 140ms ease;
 }
 
 .config-dock-button:hover {
-  transform: translateY(-1px);
-  background: #ffffff;
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 12px 30px rgba(55, 53, 47, 0.12);
 }
 
 .config-dock-button:disabled {
@@ -1309,6 +1350,7 @@ input:disabled {
 .config-dock-button--active {
   color: #ffffff;
   background: #37352f;
+  box-shadow: 0 14px 32px rgba(55, 53, 47, 0.22);
 }
 
 .config-dock-button--active:hover {
@@ -1363,6 +1405,8 @@ input:disabled {
   border-radius: var(--radius-pill);
   color: var(--text-muted);
   background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(12px) saturate(1.12);
+  -webkit-backdrop-filter: blur(12px) saturate(1.12);
   font-size: 0.82rem;
   font-weight: 730;
 }
@@ -1379,10 +1423,13 @@ input:disabled {
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: var(--radius-ui);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 24px 78px rgba(55, 53, 47, 0.18);
-  backdrop-filter: blur(20px);
+  background: var(--glass-bg-strong);
+  box-shadow: 0 30px 90px rgba(55, 53, 47, 0.22);
+  backdrop-filter: blur(28px) saturate(1.32);
+  -webkit-backdrop-filter: blur(28px) saturate(1.32);
   transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: popoverLift 220ms cubic-bezier(0.2, 0.85, 0.2, 1) both;
 }
 
 .config-popover__header {
@@ -1551,6 +1598,10 @@ input:disabled {
   white-space: nowrap;
 }
 
+.fullscreen-view--milliseconds .fullscreen-time {
+  font-size: clamp(9rem, 15vw, 17rem);
+}
+
 .fullscreen-meta {
   display: inline-flex;
   flex-wrap: wrap;
@@ -1660,6 +1711,10 @@ input:disabled {
   font-size: clamp(11.8rem, min(29vw, 56vh), 26rem);
   line-height: 1;
   overflow: visible;
+}
+
+.fullscreen-view--with-progress.fullscreen-view--milliseconds .fullscreen-time {
+  font-size: clamp(8.4rem, min(22vw, 50vh), 19rem);
 }
 
 .fullscreen-view--with-progress .fullscreen-meta {
@@ -1912,6 +1967,20 @@ input:disabled {
   }
 }
 
+@keyframes popoverLift {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(14px) scale(0.96);
+    filter: blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
 @media (min-width: 1500px) and (min-aspect-ratio: 16 / 9) {
   .app-layout {
     grid-template-columns: minmax(860px, 1fr) minmax(320px, 340px);
@@ -2056,6 +2125,16 @@ input:disabled {
     gap: 14px;
   }
 
+  .mode-dock {
+    grid-template-columns: 1fr;
+    border-radius: 24px;
+  }
+
+  .mode-dock-brand {
+    justify-content: center;
+    padding: 2px 8px 0;
+  }
+
   .timer-stage {
     height: auto;
     min-height: 500px;
@@ -2069,6 +2148,10 @@ input:disabled {
 
   .time-display {
     font-size: 4.85rem;
+  }
+
+  .timer-stage--milliseconds .time-display {
+    font-size: 3.8rem;
   }
 
   .stage-secondary {
@@ -2131,6 +2214,10 @@ input:disabled {
     font-size: 6rem;
   }
 
+  .fullscreen-view--milliseconds .fullscreen-time {
+    font-size: 4.55rem;
+  }
+
   .fullscreen-meta {
     display: grid;
     gap: 8px;
@@ -2150,6 +2237,10 @@ input:disabled {
 
   .fullscreen-view--with-progress .fullscreen-time {
     font-size: clamp(6.4rem, 30vw, 11rem);
+  }
+
+  .fullscreen-view--with-progress.fullscreen-view--milliseconds .fullscreen-time {
+    font-size: clamp(4.4rem, 23vw, 8.2rem);
   }
 
   .fullscreen-standby-controls {
@@ -2185,6 +2276,10 @@ input:disabled {
     font-size: 3.8rem;
   }
 
+  .timer-stage--milliseconds .time-display {
+    font-size: 3rem;
+  }
+
   .reminder-time-editor {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2196,6 +2291,10 @@ input:disabled {
 
   .fullscreen-time {
     font-size: 4.65rem;
+  }
+
+  .fullscreen-view--milliseconds .fullscreen-time {
+    font-size: 3.65rem;
   }
 
   .standby-control-button {

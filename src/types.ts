@@ -20,6 +20,7 @@ export interface TimerSettings {
   reminders: ReminderNode[];
   soundEnabled: boolean;
   allowOvertime: boolean;
+  showMilliseconds: boolean;
   showCurrentTimeInFullscreen: boolean;
   showFullscreenProgress: boolean;
   preventDisplaySleep: boolean;
@@ -33,6 +34,7 @@ export interface TimerModePreset {
   reminders: ReminderNode[];
   soundEnabled: boolean;
   allowOvertime: boolean;
+  showMilliseconds: boolean;
   showCurrentTimeInFullscreen: boolean;
   showFullscreenProgress: boolean;
   preventDisplaySleep: boolean;

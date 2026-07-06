@@ -59,6 +59,10 @@ export function loadTimerSettings(): TimerSettings {
         typeof parsedValue.allowOvertime === "boolean"
           ? parsedValue.allowOvertime
           : DEFAULT_SETTINGS.allowOvertime,
+      showMilliseconds:
+        typeof parsedValue.showMilliseconds === "boolean"
+          ? parsedValue.showMilliseconds
+          : DEFAULT_SETTINGS.showMilliseconds,
       showCurrentTimeInFullscreen:
         typeof parsedValue.showCurrentTimeInFullscreen === "boolean"
           ? parsedValue.showCurrentTimeInFullscreen

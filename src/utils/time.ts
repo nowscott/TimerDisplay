@@ -29,6 +29,7 @@ export const DEFAULT_SETTINGS: TimerSettings = {
   reminders: DEFAULT_REMINDERS,
   soundEnabled: true,
   allowOvertime: true,
+  showMilliseconds: false,
   showCurrentTimeInFullscreen: true,
   showFullscreenProgress: true,
   preventDisplaySleep: true,
@@ -46,6 +47,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     ],
     soundEnabled: true,
     allowOvertime: true,
+    showMilliseconds: false,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
     preventDisplaySleep: true,
@@ -61,6 +63,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     ],
     soundEnabled: true,
     allowOvertime: true,
+    showMilliseconds: false,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
     preventDisplaySleep: true,
@@ -76,6 +79,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     ],
     soundEnabled: true,
     allowOvertime: true,
+    showMilliseconds: false,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
     preventDisplaySleep: true,
@@ -91,6 +95,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     ],
     soundEnabled: true,
     allowOvertime: false,
+    showMilliseconds: false,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
     preventDisplaySleep: true,
@@ -103,6 +108,7 @@ export const TIMER_MODE_PRESETS: TimerModePreset[] = [
     reminders: DEFAULT_REMINDERS,
     soundEnabled: true,
     allowOvertime: true,
+    showMilliseconds: false,
     showCurrentTimeInFullscreen: true,
     showFullscreenProgress: true,
     preventDisplaySleep: true,
@@ -154,6 +160,7 @@ export function createSettingsFromPreset(preset: TimerModePreset): TimerSettings
     reminders: preset.reminders.map(cloneReminderNode),
     soundEnabled: preset.soundEnabled,
     allowOvertime: preset.allowOvertime,
+    showMilliseconds: preset.showMilliseconds,
     showCurrentTimeInFullscreen: preset.showCurrentTimeInFullscreen,
     showFullscreenProgress: preset.showFullscreenProgress,
     preventDisplaySleep: preset.preventDisplaySleep,
@@ -194,6 +201,7 @@ export function isSettingsFromPreset(settings: TimerSettings, preset: TimerModeP
     settings.totalSeconds === presetSettings.totalSeconds &&
     settings.soundEnabled === presetSettings.soundEnabled &&
     settings.allowOvertime === presetSettings.allowOvertime &&
+    settings.showMilliseconds === presetSettings.showMilliseconds &&
     settings.showCurrentTimeInFullscreen === presetSettings.showCurrentTimeInFullscreen &&
     settings.showFullscreenProgress === presetSettings.showFullscreenProgress &&
     isSameReminderSet(settings.reminders, presetSettings.reminders)
@@ -268,6 +276,15 @@ export function formatClock(totalSeconds: number, forceHours = false): string {
   return `${paddedMinutes}:${paddedSeconds}`;
 }
 
+export function formatClockWithMilliseconds(totalSeconds: number, forceHours = false): string {
+  const absoluteMilliseconds = Math.max(0, Math.floor(Math.abs(totalSeconds) * 1000));
+  const wholeSeconds = Math.floor(absoluteMilliseconds / 1000);
+  const milliseconds = absoluteMilliseconds % 1000;
+  const clockText = formatClock(wholeSeconds, forceHours);
+
+  return `${clockText}.${String(milliseconds).padStart(3, "0")}`;
+}
+
 export function formatCurrentTime(date = new Date()): string {
   return new Intl.DateTimeFormat("zh-CN", {
     hour: "2-digit",
@@ -321,6 +338,7 @@ export function normalizeSettings(settings: TimerSettings): TimerSettings {
     reminders: settings.reminders.map((reminder, index) => normalizeReminderNode(reminder, index)),
     soundEnabled: Boolean(settings.soundEnabled),
     allowOvertime: Boolean(settings.allowOvertime),
+    showMilliseconds: Boolean(settings.showMilliseconds),
     showCurrentTimeInFullscreen: Boolean(settings.showCurrentTimeInFullscreen),
     showFullscreenProgress: Boolean(settings.showFullscreenProgress),
     preventDisplaySleep: Boolean(settings.preventDisplaySleep),

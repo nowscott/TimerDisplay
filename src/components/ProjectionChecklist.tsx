@@ -59,6 +59,7 @@ export function ProjectionChecklist({
   onPresetApply,
   onSoundEnabledChange,
   onAllowOvertimeChange,
+  onShowMillisecondsChange,
   onShowCurrentTimeInFullscreenChange,
   onShowFullscreenProgressChange,
   wakeLockStatus,
@@ -74,6 +75,7 @@ export function ProjectionChecklist({
   const reminderText = settings.mode === "countdown" ? formatReminderSummary(settings.reminders) : "仅倒计时";
   const displaySummary = [
     settings.showFullscreenProgress && settings.mode === "countdown" ? "进度大屏" : "数字大屏",
+    settings.showMilliseconds && settings.mode !== "clock" ? "毫秒" : "整秒",
     settings.showCurrentTimeInFullscreen ? "角标时钟" : "隐藏时钟",
     settings.preventDisplaySleep ? "常亮" : "可息屏",
   ].join(" / ");
@@ -138,6 +140,7 @@ export function ProjectionChecklist({
                 wakeLockStatus={wakeLockStatus}
                 onSoundEnabledChange={onSoundEnabledChange}
                 onAllowOvertimeChange={onAllowOvertimeChange}
+                onShowMillisecondsChange={onShowMillisecondsChange}
                 onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
                 onShowFullscreenProgressChange={onShowFullscreenProgressChange}
                 onPreventDisplaySleepChange={onPreventDisplaySleepChange}

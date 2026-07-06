@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { TimerMode, TimerPhase } from "../types";
-import { formatClock, formatCurrentDate, formatCurrentTime } from "../utils/time";
+import { formatClock, formatClockWithMilliseconds, formatCurrentDate, formatCurrentTime } from "../utils/time";
 
 interface TimerDisplayProps {
   mode: TimerMode;
@@ -11,6 +11,7 @@ interface TimerDisplayProps {
   phase: TimerPhase;
   statusText: string;
   secondaryText: string;
+  showMilliseconds: boolean;
   controls?: ReactNode;
   isFocusMode?: boolean;
 }
@@ -44,6 +45,7 @@ export function TimerDisplay({
   phase,
   statusText,
   secondaryText,
+  showMilliseconds,
   controls,
   isFocusMode = false,
 }: TimerDisplayProps) {
@@ -54,12 +56,22 @@ export function TimerDisplay({
   const displayElapsedSeconds = mode === "countup" ? elapsedSeconds : countdownElapsedSeconds;
   const elapsedForceHours = forceHours || displayElapsedSeconds >= 3600;
   const countdownTimeText =
-    remainingSeconds < 0 ? `+${formatClock(visibleSeconds, forceHours)}` : formatClock(visibleSeconds, forceHours);
+    remainingSeconds < 0
+      ? `+${
+          showMilliseconds
+            ? formatClockWithMilliseconds(visibleSeconds, forceHours)
+            : formatClock(visibleSeconds, forceHours)
+        }`
+      : showMilliseconds
+        ? formatClockWithMilliseconds(visibleSeconds, forceHours)
+        : formatClock(visibleSeconds, forceHours);
   const timeText =
     mode === "clock"
       ? formatCurrentTime(now)
       : mode === "countup"
-        ? formatClock(elapsedSeconds, elapsedSeconds >= 3600)
+        ? showMilliseconds
+          ? formatClockWithMilliseconds(elapsedSeconds, elapsedSeconds >= 3600)
+          : formatClock(elapsedSeconds, elapsedSeconds >= 3600)
         : countdownTimeText;
   const elapsedClock = formatClock(displayElapsedSeconds, elapsedForceHours);
   const totalClock = formatClock(totalSeconds, elapsedForceHours);
@@ -86,7 +98,7 @@ export function TimerDisplay({
     <section
       className={`timer-stage timer-stage--${stageClass} timer-stage--mode-${mode} ${
         isFocusMode ? "timer-stage--focus" : ""
-      }`}
+      } ${showMilliseconds && mode !== "clock" ? "timer-stage--milliseconds" : ""}`}
       data-testid="timer-stage"
     >
       <div className="stage-header">
@@ -96,9 +108,11 @@ export function TimerDisplay({
         </span>
       </div>
       <div className="stage-main">
-        <h1 className="stage-title" data-testid="timer-title">
-          {title}
-        </h1>
+        {mode !== "clock" ? (
+          <h1 className="stage-title" data-testid="timer-title">
+            {title}
+          </h1>
+        ) : null}
         <div className="stage-alert-slot" aria-live="polite">
           {stageAlertText ? (
             <div className="stage-alert" data-testid="timer-alert">

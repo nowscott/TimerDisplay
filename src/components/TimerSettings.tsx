@@ -20,6 +20,7 @@ export interface TimerSettingsProps {
   onPresetApply: (settings: TimerSettingsType) => void;
   onSoundEnabledChange: (enabled: boolean) => void;
   onAllowOvertimeChange: (enabled: boolean) => void;
+  onShowMillisecondsChange: (enabled: boolean) => void;
   onShowCurrentTimeInFullscreenChange: (enabled: boolean) => void;
   onShowFullscreenProgressChange: (enabled: boolean) => void;
   wakeLockStatus: WakeLockStatus;
@@ -183,6 +184,7 @@ interface TimerDisplayOptionsSettingsProps {
   wakeLockStatus: WakeLockStatus;
   onSoundEnabledChange: (enabled: boolean) => void;
   onAllowOvertimeChange: (enabled: boolean) => void;
+  onShowMillisecondsChange: (enabled: boolean) => void;
   onShowCurrentTimeInFullscreenChange: (enabled: boolean) => void;
   onShowFullscreenProgressChange: (enabled: boolean) => void;
   onPreventDisplaySleepChange: (enabled: boolean) => void;
@@ -194,6 +196,7 @@ export function TimerDisplayOptionsSettings({
   wakeLockStatus,
   onSoundEnabledChange,
   onAllowOvertimeChange,
+  onShowMillisecondsChange,
   onShowCurrentTimeInFullscreenChange,
   onShowFullscreenProgressChange,
   onPreventDisplaySleepChange,
@@ -223,6 +226,16 @@ export function TimerDisplayOptionsSettings({
           onChange={(event) => onAllowOvertimeChange(event.target.checked)}
         />
         <span>超时后继续计时</span>
+      </label>
+      <label className="switch-label">
+        <input
+          type="checkbox"
+          checked={settings.showMilliseconds}
+          disabled={settings.mode === "clock"}
+          data-testid="show-milliseconds"
+          onChange={(event) => onShowMillisecondsChange(event.target.checked)}
+        />
+        <span>显示毫秒</span>
       </label>
       <label className="switch-label">
         <input
@@ -333,6 +346,7 @@ export function TimerSettings({
   onPresetApply,
   onSoundEnabledChange,
   onAllowOvertimeChange,
+  onShowMillisecondsChange,
   onShowCurrentTimeInFullscreenChange,
   onShowFullscreenProgressChange,
   wakeLockStatus,
@@ -380,6 +394,7 @@ export function TimerSettings({
           wakeLockStatus={wakeLockStatus}
           onSoundEnabledChange={onSoundEnabledChange}
           onAllowOvertimeChange={onAllowOvertimeChange}
+          onShowMillisecondsChange={onShowMillisecondsChange}
           onShowCurrentTimeInFullscreenChange={onShowCurrentTimeInFullscreenChange}
           onShowFullscreenProgressChange={onShowFullscreenProgressChange}
           onPreventDisplaySleepChange={onPreventDisplaySleepChange}
