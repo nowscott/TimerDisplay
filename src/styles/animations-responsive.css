@@ -217,13 +217,13 @@
   .workspace-main {
     align-items: start;
     min-height: auto;
-    margin-top: clamp(54px, 11vh, 200px);
+    margin-top: clamp(28px, 6vh, 120px);
   }
 
   .timer-workspace .timer-stage {
     width: min(100%, 1040px);
-    height: min(840px, max(560px, calc(100vh - 520px)));
-    min-height: 560px;
+    height: min(720px, max(520px, calc(100vh - 580px)));
+    min-height: 520px;
     padding: 26px 34px 30px;
   }
 
@@ -674,6 +674,147 @@
 
   .config-dock-status--clock {
     display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 900px) {
+  .app-shell {
+    padding: 14px 14px 112px;
+  }
+
+  .timer-workspace {
+    width: min(100%, 820px);
+    align-content: start;
+    gap: 16px;
+  }
+
+  .mode-dock {
+    grid-template-columns: minmax(170px, auto) minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .mode-dock-brand {
+    gap: 8px;
+    padding-right: 8px;
+  }
+
+  .mode-dock-brand__icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mode-dock-brand__text {
+    font-size: 1.06rem;
+  }
+
+  .mode-dock-version {
+    font-size: 0.74rem;
+  }
+
+  .mode-tabs {
+    overflow: hidden;
+  }
+
+  .mode-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    min-height: 54px;
+    gap: 7px;
+    padding: 0 12px;
+    font-size: 1rem;
+  }
+
+  .mode-tab__detail {
+    display: none;
+  }
+
+  .workspace-main {
+    align-items: start;
+    min-height: auto;
+    margin-top: clamp(28px, 6vh, 92px);
+  }
+
+  .timer-workspace .timer-stage {
+    width: 100%;
+    height: min(700px, max(500px, calc(100vh - 540px)));
+    min-height: 500px;
+    padding: 22px 24px 26px;
+  }
+
+  .time-display {
+    font-size: clamp(5.8rem, 12vw, 7.4rem);
+  }
+
+  .timer-stage--mode-countup .time-display {
+    font-size: clamp(6rem, 12.2vw, 7.6rem);
+  }
+
+  .stage-footer {
+    padding: 14px 16px;
+  }
+
+  .timer-controls {
+    display: grid;
+    grid-template-columns: minmax(170px, 1fr) repeat(2, minmax(130px, 0.88fr)) repeat(2, 46px);
+    gap: 9px;
+    width: 100%;
+  }
+
+  .timer-controls .control-button,
+  .timer-controls .icon-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    padding: 0 10px;
+  }
+
+  .timer-controls .control-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .timer-stage--mode-countdown .stage-footer {
+    padding: 12px 14px;
+  }
+
+  .timer-stage--mode-countdown .timer-controls {
+    grid-template-columns: minmax(160px, 1fr) repeat(2, minmax(126px, 0.88fr)) repeat(2, 44px);
+    gap: 8px;
+  }
+
+  .config-dock-shell {
+    width: min(820px, calc(100vw - 24px));
+  }
+
+  .config-dock {
+    gap: 8px;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .config-dock-button {
+    flex: 1 1 0;
+    min-height: 68px;
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .config-dock-button__icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .config-dock-button__text span {
+    font-size: 0.98rem;
+  }
+
+  .config-dock-button__text small {
+    max-width: 11ch;
+    font-size: 0.78rem;
   }
 }
 
