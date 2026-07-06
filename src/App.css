@@ -2622,14 +2622,18 @@ input:disabled {
   }
 
   .config-dock {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
     padding: 7px;
+    overflow: visible;
   }
 
   .config-dock-button {
-    flex: 0 0 104px;
+    flex: initial;
     min-height: 48px;
-    padding: 0 9px;
+    padding: 0 6px;
+    text-align: center;
   }
 
   .config-dock-button__text span {
@@ -2637,7 +2641,7 @@ input:disabled {
   }
 
   .config-dock-button__text small {
-    font-size: 0.7rem;
+    display: none;
   }
 
   .config-dock-button__icon,
