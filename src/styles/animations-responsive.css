@@ -180,34 +180,34 @@
   .mode-dock {
     width: 100%;
     grid-template-columns: minmax(210px, auto) minmax(0, 1fr);
-    gap: 16px;
-    padding: 14px;
+    gap: 14px;
+    padding: 11px;
   }
 
   .mode-dock-brand {
-    gap: 11px;
-    padding-right: 14px;
+    gap: 10px;
+    padding-right: 12px;
   }
 
   .mode-dock-brand__icon {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
   }
 
   .mode-dock-brand__text {
-    font-size: 1.36rem;
+    font-size: 1.24rem;
   }
 
   .mode-dock-version {
-    font-size: 0.86rem;
+    font-size: 0.8rem;
   }
 
   .mode-tab {
     justify-content: center;
-    min-height: 68px;
-    gap: 9px;
-    padding: 0 22px;
-    font-size: 1.28rem;
+    min-height: 58px;
+    gap: 8px;
+    padding: 0 20px;
+    font-size: 1.14rem;
   }
 
   .mode-tab__detail {
@@ -255,12 +255,12 @@
 
   .stage-footer {
     gap: 12px;
-    padding: 20px 22px;
+    padding: 17px 20px;
   }
 
   .timer-controls {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(170px, 0.86fr)) repeat(2, 58px);
+    grid-template-columns: minmax(205px, 1fr) repeat(2, minmax(160px, 0.86fr)) repeat(2, 52px);
     align-items: center;
     gap: 12px;
     width: 100%;
@@ -273,12 +273,26 @@
   }
 
   .timer-controls .icon-button {
-    min-height: 58px;
+    min-height: 52px;
   }
 
   .timer-controls .control-button {
-    min-height: 58px;
-    font-size: 1.08rem;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .timer-stage--mode-countdown .stage-footer {
+    padding: 14px 18px;
+  }
+
+  .timer-stage--mode-countdown .timer-controls {
+    grid-template-columns: minmax(190px, 1fr) repeat(2, minmax(150px, 0.86fr)) repeat(2, 48px);
+    gap: 10px;
+  }
+
+  .timer-stage--mode-countdown .timer-controls .control-button,
+  .timer-stage--mode-countdown .timer-controls .icon-button {
+    min-height: 48px;
   }
 
   .config-dock-shell {
@@ -286,30 +300,30 @@
   }
 
   .config-dock {
-    gap: 10px;
-    padding: 13px;
+    gap: 9px;
+    padding: 11px;
     overflow: hidden;
   }
 
   .config-dock-button {
     flex: 1 1 0;
-    min-height: 88px;
-    gap: 12px;
-    padding: 0 18px;
+    min-height: 74px;
+    gap: 10px;
+    padding: 0 16px;
   }
 
   .config-dock-button__icon {
-    width: 54px;
-    height: 54px;
+    width: 46px;
+    height: 46px;
   }
 
   .config-dock-button__text span {
-    font-size: 1.22rem;
+    font-size: 1.1rem;
   }
 
   .config-dock-button__text small {
     max-width: 13ch;
-    font-size: 0.92rem;
+    font-size: 0.84rem;
   }
 
   .config-dock-status,
