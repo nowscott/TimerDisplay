@@ -98,8 +98,8 @@ export function TimerBasicSettings({
   }
 
   return (
-    <>
-      <label className="field-label">
+    <div className={`basic-settings ${settings.mode === "clock" ? "basic-settings--clock" : ""}`}>
+      <label className="field-label basic-settings__title">
         <span>标题</span>
         <input
           className="text-input"
@@ -113,7 +113,11 @@ export function TimerBasicSettings({
       {settings.mode === "clock" ? (
         <p className="empty-text">时钟模式不使用时长；标题会显示在普通和全屏时钟上。</p>
       ) : (
-        <>
+        <div className="basic-settings__duration">
+          <div className="settings-subtitle basic-settings__duration-title">
+            <Clock3 aria-hidden="true" size={16} />
+            <span>{durationTitle}</span>
+          </div>
           <div className="duration-grid">
             <label className="number-field">
               <span>时</span>
@@ -152,10 +156,6 @@ export function TimerBasicSettings({
               />
             </label>
           </div>
-          <div className="settings-subtitle">
-            <Clock3 aria-hidden="true" size={16} />
-            <span>{durationTitle}</span>
-          </div>
           <div className="preset-grid" role="list" aria-label="常用预设">
             {PRESET_SECONDS.map((preset) => (
               <button
@@ -173,9 +173,9 @@ export function TimerBasicSettings({
               自定义
             </button>
           </div>
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 }
 
