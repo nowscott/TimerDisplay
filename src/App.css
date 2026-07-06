@@ -2630,21 +2630,42 @@ input:disabled {
   }
 
   .config-dock-button {
+    display: grid;
+    justify-items: center;
+    align-content: center;
     flex: initial;
-    min-height: 48px;
+    gap: 3px;
+    min-height: 58px;
     padding: 0 6px;
     text-align: center;
   }
 
+  .config-dock-button__icon {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    background: rgba(55, 53, 47, 0.07);
+  }
+
+  .config-dock-button--active .config-dock-button__icon {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .config-dock-button__text {
+    display: block;
+    width: 100%;
+  }
+
   .config-dock-button__text span {
-    font-size: 0.88rem;
+    display: block;
+    font-size: 0.78rem;
+    line-height: 1.1;
   }
 
   .config-dock-button__text small {
     display: none;
   }
 
-  .config-dock-button__icon,
   .config-dock-status {
     display: none;
   }
