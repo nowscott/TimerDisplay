@@ -1,0 +1,270 @@
+:root {
+  color-scheme: light;
+  font-family:
+    "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+  background: #f7f6f3;
+  color: #37352f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --surface: #ffffff;
+  --surface-muted: #f7f6f3;
+  --surface-strong: #efeee9;
+  --text: #37352f;
+  --text-muted: #6f6e69;
+  --text-subtle: #9b9a97;
+  --line: rgba(55, 53, 47, 0.1);
+  --line-strong: rgba(55, 53, 47, 0.18);
+  --normal: #2f6f62;
+  --normal-deep: #255a50;
+  --normal-soft: #edf4f1;
+  --warning: #9a6a16;
+  --warning-fill: #e5b84c;
+  --warning-soft: #fbf3db;
+  --danger: #a33b32;
+  --danger-deep: #7c2e28;
+  --danger-soft: #f8e9e7;
+  --shadow: 0 16px 42px rgba(55, 53, 47, 0.08);
+  --radius-ui: 22px;
+  --radius-pill: 999px;
+  --glass-bg:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.36) 34%, transparent 58%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.28));
+  --glass-bg-strong:
+    radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.46) 32%, transparent 58%),
+    radial-gradient(circle at 88% 92%, rgba(255, 255, 255, 0.34), transparent 48%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.36));
+  --glass-border: rgba(255, 255, 255, 0.82);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.86), inset 0 -1px 0 rgba(255, 255, 255, 0.24);
+  --glass-shadow: 0 24px 76px rgba(55, 53, 47, 0.16), 0 2px 10px rgba(255, 255, 255, 0.34) inset;
+  --dock-bg: var(--glass-bg);
+  --dock-border: var(--glass-border);
+  --timer-number-font:
+    ui-rounded, "SF Pro Rounded", "Avenir Next", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --timer-number-weight: 560;
+  --timer-number-strong-weight: 560;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(145deg, rgba(231, 244, 240, 0.92), rgba(247, 246, 243, 0.86) 48%, rgba(246, 238, 226, 0.9)),
+    #f7f6f3;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.time-display,
+.stage-alert,
+.stage-secondary,
+.stage-metric strong,
+.sidebar-section-summary,
+.projection-checklist__quick,
+.mode-card-duration,
+.preset-button,
+.reminder-chip,
+.reminder-row-time,
+.number-field input,
+.reminder-time-field input,
+.fullscreen-clock,
+.fullscreen-time,
+.fullscreen-meta-number {
+  font-family: var(--timer-number-font);
+  font-stretch: normal;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings:
+    "tnum" 1,
+    "lnum" 1;
+  font-weight: var(--timer-number-weight);
+}
+
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.app-shell {
+  display: grid;
+  align-items: stretch;
+  min-height: 100vh;
+  padding: clamp(16px, 2.8vh, 30px) clamp(16px, 3vw, 34px) clamp(104px, 15vh, 142px);
+  background:
+    linear-gradient(135deg, rgba(234, 247, 242, 0.82), rgba(247, 246, 243, 0.72) 54%, rgba(250, 238, 224, 0.78)),
+    #f7f6f3;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.app-shell:fullscreen {
+  background: #f7f6f3;
+}
+
+.app-shell--focus {
+  height: 100vh;
+  max-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  background: #f8f7f3;
+}
+
+.timer-workspace {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: clamp(18px, 3vh, 30px);
+  width: min(100%, 1280px);
+  min-height: calc(100vh - clamp(122px, 18vh, 172px));
+  margin: 0 auto;
+}
+
+.mode-dock {
+  position: sticky;
+  top: clamp(12px, 2vh, 24px);
+  z-index: 8;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: 9px;
+  border: 1px solid var(--dock-border);
+  border-radius: var(--radius-pill);
+  background: var(--dock-bg);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  backdrop-filter: blur(30px) saturate(1.7) contrast(1.04);
+  -webkit-backdrop-filter: blur(30px) saturate(1.7) contrast(1.04);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.mode-dock::before,
+.config-dock::before,
+.config-popover::before {
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.7), transparent 32%),
+    radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.36), transparent 28%);
+  content: "";
+  opacity: 0.72;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mode-dock > *,
+.config-dock > *,
+.config-popover > * {
+  position: relative;
+  z-index: 1;
+}
+
+.mode-dock-brand {
+  gap: 8px;
+  min-width: 0;
+  padding: 0 12px 0 4px;
+  color: var(--text);
+  font-weight: 780;
+  white-space: nowrap;
+}
+
+.mode-dock-brand__copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  line-height: 1.05;
+}
+
+.mode-dock-brand__icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-pill);
+  color: #ffffff;
+  background: #37352f;
+}
+
+.mode-dock-version {
+  width: max-content;
+  max-width: 100%;
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+  font-weight: 760;
+  text-decoration: none;
+  transition:
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.mode-dock-version:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.mode-tabs {
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mode-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  background: transparent;
+  font-weight: 760;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.mode-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.mode-tab--active {
+  color: #ffffff;
+  background: #37352f;
+  box-shadow: 0 12px 26px rgba(55, 53, 47, 0.16);
+}
+
+.mode-tab--active:hover {
+  color: #ffffff;
+  background: #2b2925;
+}
+
+.mode-tab__label {
+  white-space: nowrap;
+}
+
+.mode-tab__detail {
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 680;
+  opacity: 0.72;
+  white-space: nowrap;
+}

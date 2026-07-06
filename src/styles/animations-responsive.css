@@ -1,0 +1,837 @@
+@keyframes overtimePulse {
+  0%,
+  100% {
+    border-color: rgba(163, 59, 50, 0.22);
+    box-shadow: 0 1px 2px rgba(55, 53, 47, 0.04);
+  }
+
+  50% {
+    border-color: rgba(163, 59, 50, 0.42);
+    box-shadow: 0 10px 30px rgba(163, 59, 50, 0.1);
+  }
+}
+
+@keyframes attentionPop {
+  0% {
+    transform: scale(0.96);
+    box-shadow: 0 0 0 rgba(245, 200, 77, 0);
+  }
+
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 10px rgba(229, 184, 76, 0.18);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+@keyframes dangerSignal {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(180, 35, 24, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(163, 59, 50, 0.12);
+  }
+}
+
+@keyframes fullscreenOvertimePulse {
+  0%,
+  100% {
+    background-color: #a92722;
+  }
+
+  50% {
+    background-color: #8f1d1a;
+  }
+}
+
+@keyframes popoverLift {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(14px) scale(0.96);
+    filter: blur(4px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes liquidPopover {
+  0% {
+    opacity: 0;
+    clip-path: inset(88% 44% 0 44% round 999px);
+    transform: translateX(-50%) translateY(18px) scaleX(0.34) scaleY(0.16);
+    filter: blur(10px) saturate(1.9);
+  }
+
+  42% {
+    opacity: 1;
+    clip-path: inset(18% 8% 0 8% round 32px);
+    transform: translateX(-50%) translateY(3px) scaleX(1.03) scaleY(0.94);
+    filter: blur(1px) saturate(1.35);
+  }
+
+  72% {
+    clip-path: inset(0 0 0 0 round var(--radius-ui));
+    transform: translateX(-50%) translateY(-2px) scaleX(0.995) scaleY(1.012);
+    filter: blur(0) saturate(1.12);
+  }
+
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0 round var(--radius-ui));
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0) saturate(1);
+  }
+}
+
+@keyframes liquidContent {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (min-width: 1500px) and (min-aspect-ratio: 16 / 9) {
+  .app-layout {
+    grid-template-columns: minmax(860px, 1fr) minmax(320px, 340px);
+  }
+
+  .timer-stage {
+    height: min(680px, calc(100vh - 170px));
+    min-height: 560px;
+  }
+
+  .stage-main {
+    padding-block: clamp(18px, 3.4vh, 38px);
+  }
+
+  .stage-title {
+    font-size: 1.7rem;
+  }
+
+  .time-display {
+    font-size: clamp(9.2rem, 7.4vw, 11.6rem);
+  }
+
+  .stage-metric {
+    min-width: 128px;
+  }
+}
+
+@media (min-width: 1200px) and (min-aspect-ratio: 19 / 9) {
+  .timer-stage {
+    height: min(620px, calc(100vh - 170px));
+    min-height: 520px;
+  }
+
+  .stage-main {
+    padding-block: 16px;
+  }
+}
+
+@media (max-width: 1220px) {
+  .fullscreen-time {
+    font-size: 14rem;
+  }
+}
+
+@media (max-width: 1080px) {
+  .app-layout {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 860px;
+  }
+
+  .projection-checklist {
+    position: static;
+  }
+
+  .settings-panel {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .app-shell {
+    padding: 18px clamp(18px, 2.4vw, 28px) 112px;
+  }
+
+  .timer-workspace {
+    width: min(100%, 1040px);
+    align-content: start;
+    min-height: calc(100vh - 138px);
+    gap: 18px;
+  }
+
+  .mode-dock {
+    width: 100%;
+    grid-template-columns: minmax(210px, auto) minmax(0, 1fr);
+    gap: 16px;
+    padding: 14px;
+  }
+
+  .mode-dock-brand {
+    gap: 11px;
+    padding-right: 14px;
+  }
+
+  .mode-dock-brand__icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mode-dock-brand__text {
+    font-size: 1.36rem;
+  }
+
+  .mode-dock-version {
+    font-size: 0.86rem;
+  }
+
+  .mode-tab {
+    justify-content: center;
+    min-height: 68px;
+    gap: 9px;
+    padding: 0 22px;
+    font-size: 1.28rem;
+  }
+
+  .mode-tab__detail {
+    display: none;
+  }
+
+  .workspace-main {
+    align-items: start;
+    min-height: auto;
+    margin-top: clamp(54px, 11vh, 200px);
+  }
+
+  .timer-workspace .timer-stage {
+    width: min(100%, 1040px);
+    height: min(840px, max(560px, calc(100vh - 520px)));
+    min-height: 560px;
+    padding: 26px 34px 30px;
+  }
+
+  .stage-main {
+    gap: 14px;
+    padding: 12px 0;
+  }
+
+  .stage-title {
+    font-size: 1.55rem;
+  }
+
+  .time-display {
+    font-size: clamp(7.2rem, 12vw, 9rem);
+  }
+
+  .timer-stage--mode-countup .time-display {
+    font-size: clamp(7.4rem, 12.4vw, 9.2rem);
+  }
+
+  .stage-secondary {
+    font-size: 0.98rem;
+  }
+
+  .stage-metric {
+    min-width: 126px;
+    padding: 12px 18px 13px;
+  }
+
+  .stage-footer {
+    gap: 12px;
+    padding: 20px 22px;
+  }
+
+  .timer-controls {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(170px, 0.86fr)) repeat(2, 58px);
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .timer-controls .control-button,
+  .timer-controls .icon-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .timer-controls .icon-button {
+    min-height: 58px;
+  }
+
+  .timer-controls .control-button {
+    min-height: 58px;
+    font-size: 1.08rem;
+  }
+
+  .config-dock-shell {
+    width: min(1040px, calc(100vw - 32px));
+  }
+
+  .config-dock {
+    gap: 10px;
+    padding: 13px;
+    overflow: hidden;
+  }
+
+  .config-dock-button {
+    flex: 1 1 0;
+    min-height: 88px;
+    gap: 12px;
+    padding: 0 18px;
+  }
+
+  .config-dock-button__icon {
+    width: 54px;
+    height: 54px;
+  }
+
+  .config-dock-button__text span {
+    font-size: 1.22rem;
+  }
+
+  .config-dock-button__text small {
+    max-width: 13ch;
+    font-size: 0.92rem;
+  }
+
+  .config-dock-status,
+  .config-dock-status--clock {
+    display: none;
+  }
+}
+
+@media (max-height: 780px) and (min-width: 761px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .app-shell--focus {
+    padding: 0;
+  }
+
+  .notion-page {
+    gap: 14px;
+  }
+
+  .notion-page-header {
+    min-height: 56px;
+  }
+
+  .notion-page-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .notion-page-header h1 {
+    font-size: 2.25rem;
+  }
+
+  .timer-stage {
+    height: min(520px, calc(100vh - 118px));
+    min-height: 470px;
+    padding: 22px 24px;
+  }
+
+  .stage-main {
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .time-display {
+    font-size: clamp(6.4rem, 7.8vw, 8.2rem);
+  }
+
+  .stage-metric {
+    padding: 8px 12px;
+  }
+
+  .stage-footer {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .projection-checklist {
+    top: 16px;
+  }
+
+  .fullscreen-timer {
+    gap: 20px;
+  }
+
+  .fullscreen-title {
+    font-size: 2.5rem;
+  }
+
+  .fullscreen-time {
+    font-size: 13rem;
+  }
+
+  .fullscreen-meta {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    padding: 12px 12px 112px;
+  }
+
+  .app-shell--focus {
+    padding: 0;
+  }
+
+  .app-layout {
+    gap: 14px;
+  }
+
+  .mode-dock {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+    border-radius: var(--radius-pill);
+  }
+
+  .mode-dock-brand {
+    justify-content: flex-start;
+    padding: 0 4px 0 0;
+  }
+
+  .timer-stage {
+    height: auto;
+    min-height: clamp(420px, calc(100vh - 236px), 500px);
+    aspect-ratio: auto;
+    padding: 22px 16px;
+  }
+
+  .stage-title {
+    font-size: 1.35rem;
+  }
+
+  .time-display {
+    font-size: 4.85rem;
+  }
+
+  .timer-stage--milliseconds .time-display {
+    font-size: 3.8rem;
+  }
+
+  .stage-secondary {
+    font-size: 0.95rem;
+  }
+
+  .timer-controls {
+    justify-content: stretch;
+  }
+
+  .control-button {
+    flex: 1 1 140px;
+  }
+
+  .settings-card {
+    padding: 14px;
+  }
+
+  .basic-settings {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .basic-settings__title {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+
+  .toggle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .mode-card-meta {
+    grid-column: 1 / -1;
+  }
+
+  .preset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reminder-time-editor {
+    grid-template-columns: auto repeat(2, minmax(0, 1fr));
+  }
+
+  .fullscreen-controls {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .fullscreen-controls .timer-controls {
+    width: auto;
+  }
+
+  .fullscreen-clock {
+    top: 12px;
+    right: 12px;
+    min-width: 104px;
+    font-size: 0.9rem;
+  }
+
+  .fullscreen-title {
+    font-size: 1.85rem;
+  }
+
+  .fullscreen-time {
+    font-size: 6rem;
+  }
+
+  .fullscreen-view--milliseconds .fullscreen-time {
+    font-size: 4.55rem;
+  }
+
+  .fullscreen-meta {
+    display: grid;
+    gap: 8px;
+    font-size: 1rem;
+  }
+
+  .fullscreen-view--with-progress .fullscreen-timer {
+    justify-items: center;
+    width: min(90vw, 620px);
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .fullscreen-view--with-progress .fullscreen-title {
+    font-size: clamp(1.2rem, 8vw, 2.4rem);
+  }
+
+  .fullscreen-view--with-progress .fullscreen-time {
+    font-size: clamp(6.4rem, 30vw, 11rem);
+  }
+
+  .fullscreen-view--with-progress.fullscreen-view--milliseconds .fullscreen-time {
+    font-size: clamp(4.4rem, 23vw, 8.2rem);
+  }
+
+  .fullscreen-standby-controls {
+    right: 12px;
+    bottom: max(12px, calc(env(safe-area-inset-bottom) + 12px));
+    grid-template-columns: repeat(4, 52px);
+    gap: 7px;
+  }
+
+  .standby-control-button {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 430px) {
+  .duration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .basic-settings .duration-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .timer-stage {
+    min-height: clamp(390px, calc(100vh - 224px), 450px);
+  }
+
+  .stage-label,
+  .stage-status {
+    min-height: 28px;
+    padding: 0 9px;
+    font-size: 0.82rem;
+  }
+
+  .time-display {
+    font-size: 3.8rem;
+  }
+
+  .timer-stage--milliseconds .time-display {
+    font-size: 3rem;
+  }
+
+  .reminder-time-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .reminder-time-prefix {
+    grid-column: 1 / -1;
+    min-height: auto;
+  }
+
+  .fullscreen-time {
+    font-size: 4.65rem;
+  }
+
+  .fullscreen-view--milliseconds .fullscreen-time {
+    font-size: 3.65rem;
+  }
+
+  .standby-control-button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .fullscreen-standby-controls {
+    grid-template-columns: repeat(4, 48px);
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    padding: 12px 12px 118px;
+  }
+
+  .timer-workspace {
+    gap: 14px;
+    min-height: calc(100vh - 130px);
+  }
+
+  .mode-dock {
+    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+    border-radius: var(--radius-pill);
+  }
+
+  .mode-dock-brand {
+    justify-content: flex-start;
+    padding: 0 4px 0 0;
+  }
+
+  .mode-tabs {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+
+  .mode-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mode-tab {
+    flex: 0 0 auto;
+    min-width: 118px;
+  }
+
+  .workspace-main {
+    min-height: calc(100vh - 238px);
+  }
+
+  .timer-workspace .timer-stage {
+    width: 100%;
+    height: auto;
+    min-height: clamp(430px, calc(100vh - 232px), 500px);
+    padding: 20px;
+  }
+
+  .timer-stage--mode-clock .time-display {
+    font-size: clamp(4rem, 16vw, 7rem);
+  }
+
+  .config-dock-shell {
+    width: calc(100vw - 20px);
+  }
+
+  .config-dock-button {
+    flex-basis: 142px;
+  }
+
+  .config-dock-status--clock {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .mode-tab__detail {
+    display: none;
+  }
+
+  .mode-dock-version {
+    font-size: 0.68rem;
+  }
+
+  .mode-dock {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 7px;
+    padding: 8px;
+    border-radius: var(--radius-pill);
+  }
+
+  .mode-dock-brand {
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  .mode-dock-brand__copy {
+    display: none;
+  }
+
+  .mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 5px;
+    overflow: visible;
+  }
+
+  .mode-dock-brand__icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .mode-tab {
+    flex: initial;
+    min-width: 0;
+    justify-content: center;
+    min-height: 40px;
+    gap: 5px;
+    padding: 0 7px;
+  }
+
+  .timer-workspace .timer-stage {
+    gap: 8px;
+    min-height: clamp(340px, calc(100vh - 280px), 400px);
+    padding: 12px;
+  }
+
+  .stage-main {
+    gap: 8px;
+    padding: 6px 0;
+  }
+
+  .stage-metrics {
+    gap: 8px;
+  }
+
+  .stage-metric {
+    min-width: 106px;
+    padding: 8px 10px 9px;
+  }
+
+  .stage-footer {
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .timer-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .timer-controls .control-button,
+  .timer-controls .icon-button {
+    width: auto;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 8px;
+  }
+
+  .timer-controls .control-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .timer-stage--mode-countup .time-display {
+    font-size: clamp(4rem, 18vw, 6.4rem);
+  }
+
+  .config-popover {
+    bottom: calc(100% + 8px);
+    width: calc(100vw - 20px);
+    max-height: min(70vh, 560px);
+    padding: 13px;
+    border-radius: 20px;
+  }
+
+  .config-popover::after {
+    bottom: -11px;
+    width: min(190px, 58%);
+    height: 24px;
+  }
+
+  .config-popover__header {
+    gap: 10px;
+  }
+
+  .config-popover h2 {
+    font-size: 1.05rem;
+  }
+
+  .config-popover__body {
+    max-height: min(52vh, 420px);
+  }
+
+  .config-dock {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 7px;
+    overflow: visible;
+  }
+
+  .config-dock-button {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    flex: initial;
+    gap: 3px;
+    min-height: 58px;
+    padding: 0 6px;
+    text-align: center;
+  }
+
+  .config-dock-button__icon {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    background: rgba(55, 53, 47, 0.07);
+  }
+
+  .config-dock-button--active .config-dock-button__icon {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .config-dock-button__text {
+    display: block;
+    width: 100%;
+  }
+
+  .config-dock-button__text span {
+    display: block;
+    font-size: 0.78rem;
+    line-height: 1.1;
+  }
+
+  .config-dock-button__text small {
+    display: none;
+  }
+
+  .config-dock-status {
+    display: none;
+  }
+}

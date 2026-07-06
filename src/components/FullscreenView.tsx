@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Minimize2, Pause, Play, Volume2, VolumeX, X } from "lucide-react";
 import type { TimerMode, TimerPhase, TimerStatus } from "../types";
 import { formatClock, formatClockWithMilliseconds, formatCurrentDate, formatCurrentTime } from "../utils/time";
+import { useFullscreenProgress } from "../hooks/useFullscreenProgress";
 import { TimerControls } from "./TimerControls";
 
 interface FullscreenViewProps {
@@ -85,10 +86,14 @@ export function FullscreenView({
           : status === "finished"
             ? "时间到"
             : "计时中";
-  const [visualElapsedProgress, setVisualElapsedProgress] = useState(elapsedProgress);
+  const { visualElapsedProgress, titleRef, timeRef } = useFullscreenProgress({
+    enabled: shouldShowProgress,
+    status,
+    elapsedProgress,
+    remainingSeconds,
+    totalSeconds,
+  });
   const [isChromeVisible, setIsChromeVisible] = useState(true);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const timeRef = useRef<HTMLDivElement>(null);
   const chromeHideTimeoutRef = useRef<number | null>(null);
   const PrimaryIcon = status === "running" ? Pause : Play;
   const primaryLabel =
@@ -101,25 +106,6 @@ export function FullscreenView({
     mode === "clock" ? "大屏时钟" : mode === "countup" ? "大屏正计时" : "大屏倒计时";
   const dateText = formatCurrentDate(currentDate);
 
-  function syncTextContrastProgress(progress: number): void {
-    if (!shouldShowProgress || typeof window === "undefined") {
-      return;
-    }
-
-    const fillEdge = window.innerWidth * (progress / 100);
-
-    [titleRef.current, timeRef.current].forEach((element) => {
-      if (!element) {
-        return;
-      }
-
-      const rect = element.getBoundingClientRect();
-      const overlapPercent = rect.width > 0 ? ((fillEdge - rect.left) / rect.width) * 100 : 0;
-      const clampedPercent = Math.max(0, Math.min(100, overlapPercent));
-      element.style.setProperty("--text-progress", `${clampedPercent}%`);
-    });
-  }
-
   useEffect(() => {
     if (!showCurrentTime && mode !== "clock") {
       return;
@@ -128,46 +114,6 @@ export function FullscreenView({
     const intervalId = window.setInterval(() => setCurrentDate(new Date()), 1000);
     return () => window.clearInterval(intervalId);
   }, [mode, showCurrentTime]);
-
-  useEffect(() => {
-    if (!shouldShowProgress || status !== "running") {
-      setVisualElapsedProgress(elapsedProgress);
-      return;
-    }
-
-    const syncedAt = performance.now();
-    const syncedRemainingSeconds = remainingSeconds;
-    let animationFrameId = 0;
-
-    const updateProgress = (timestamp: number) => {
-      const elapsedSinceSync = (timestamp - syncedAt) / 1000;
-      const preciseRemainingSeconds = syncedRemainingSeconds - elapsedSinceSync;
-      const nextProgress = Math.max(
-        0,
-        Math.min(100, ((totalSeconds - Math.max(0, preciseRemainingSeconds)) / totalSeconds) * 100)
-      );
-
-      setVisualElapsedProgress(nextProgress);
-      animationFrameId = window.requestAnimationFrame(updateProgress);
-    };
-
-    animationFrameId = window.requestAnimationFrame(updateProgress);
-    return () => window.cancelAnimationFrame(animationFrameId);
-  }, [elapsedProgress, remainingSeconds, shouldShowProgress, status, totalSeconds]);
-
-  useEffect(() => {
-    syncTextContrastProgress(visualElapsedProgress);
-  });
-
-  useEffect(() => {
-    if (!shouldShowProgress) {
-      return;
-    }
-
-    const handleResize = () => syncTextContrastProgress(visualElapsedProgress);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [shouldShowProgress, visualElapsedProgress]);
 
   useEffect(() => {
     const showChrome = () => {

@@ -32,7 +32,11 @@ function ConfigDockButton({
 }: ConfigDockButtonProps) {
   return (
     <button
-      className={isActive ? "config-dock-button config-dock-button--active" : "config-dock-button"}
+      className={
+        isActive
+          ? "config-dock-button config-dock-button--active inline-flex items-center"
+          : "config-dock-button inline-flex items-center"
+      }
       type="button"
       disabled={disabled}
       aria-expanded={isActive}
@@ -101,7 +105,11 @@ export function ProjectionChecklist({
   return (
     <aside className="config-dock-shell" aria-label="底部配置栏">
       {activeSection ? (
-        <section className="config-popover" id={`config-popover-${activeSection}`} aria-label={activeTitle}>
+        <section
+          className={`config-popover config-popover--${activeSection}`}
+          id={`config-popover-${activeSection}`}
+          aria-label={activeTitle}
+        >
           <div className="config-popover__header">
             <div>
               <span className="config-popover__eyebrow">当前配置</span>
@@ -164,7 +172,7 @@ export function ProjectionChecklist({
         </section>
       ) : null}
 
-      <div className="config-dock" role="toolbar" aria-label="配置入口">
+      <div className="config-dock inline-flex items-center" role="toolbar" aria-label="配置入口">
         <ConfigDockButton
           id="mode"
           title="场景"
@@ -198,11 +206,11 @@ export function ProjectionChecklist({
           disabled={settings.mode !== "countdown"}
           onToggle={toggleSection}
         />
-        <div className="config-dock-status" aria-live="polite">
+        <div className="config-dock-status inline-flex items-center" aria-live="polite">
           <MonitorCheck aria-hidden="true" size={16} />
           <span>{status === "running" ? "运行中" : settings.preventDisplaySleep ? "常亮优先" : "常亮关闭"}</span>
         </div>
-        <div className="config-dock-status config-dock-status--clock">
+        <div className="config-dock-status config-dock-status--clock inline-flex items-center">
           <Clock3 aria-hidden="true" size={16} />
           <span>{settings.showCurrentTimeInFullscreen ? "大屏角标" : "无角标"}</span>
         </div>

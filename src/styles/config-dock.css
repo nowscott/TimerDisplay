@@ -1,0 +1,239 @@
+.config-dock-shell {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, calc(env(safe-area-inset-bottom) + 18px));
+  z-index: 12;
+  width: min(1120px, calc(100vw - 28px));
+  transform: translateX(-50%);
+}
+
+.config-dock {
+  position: relative;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 9px;
+  overflow-x: auto;
+  border: 1px solid var(--dock-border);
+  border-radius: var(--radius-pill);
+  background: var(--dock-bg);
+  box-shadow: 0 24px 70px rgba(55, 53, 47, 0.18), var(--glass-inset);
+  backdrop-filter: blur(32px) saturate(1.72) contrast(1.04);
+  -webkit-backdrop-filter: blur(32px) saturate(1.72) contrast(1.04);
+  isolation: isolate;
+  scrollbar-width: none;
+}
+
+.config-dock::-webkit-scrollbar {
+  display: none;
+}
+
+.config-dock-button {
+  flex: 1 0 150px;
+  min-width: 0;
+  min-height: 54px;
+  gap: 9px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.58);
+  text-align: left;
+  transition:
+    background 180ms ease,
+    color 140ms ease,
+    transform 180ms cubic-bezier(0.2, 0.85, 0.2, 1),
+    box-shadow 180ms ease,
+    opacity 140ms ease;
+}
+
+.config-dock-button:hover {
+  transform: translateY(-2px) scale(1.015);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.2) 58%),
+    rgba(255, 255, 255, 0.62);
+  box-shadow: 0 14px 34px rgba(55, 53, 47, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.config-dock-button:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.72),
+    0 0 0 4px rgba(47, 111, 98, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.config-dock-button:disabled {
+  opacity: 0.48;
+  transform: none;
+}
+
+.config-dock-button--active {
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 22% 8%, rgba(255, 255, 255, 0.34), transparent 44%),
+    rgba(55, 53, 47, 0.88);
+  box-shadow: 0 16px 36px rgba(55, 53, 47, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.config-dock-button--active:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.72),
+    0 0 0 4px rgba(47, 111, 98, 0.2),
+    0 16px 36px rgba(55, 53, 47, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.config-dock-button--active:hover {
+  background: #2b2925;
+}
+
+.config-dock-button__icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  background: rgba(55, 53, 47, 0.08);
+}
+
+.config-dock-button--active .config-dock-button__icon {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.config-dock-button__text {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.config-dock-button__text span,
+.config-dock-button__text small,
+.config-dock-status span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.config-dock-button__text span {
+  font-size: 0.94rem;
+  font-weight: 780;
+}
+
+.config-dock-button__text small {
+  color: inherit;
+  font-size: 0.76rem;
+  font-weight: 680;
+  opacity: 0.7;
+}
+
+.config-dock-status {
+  flex: 0 0 auto;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(18px) saturate(1.28);
+  -webkit-backdrop-filter: blur(18px) saturate(1.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  font-size: 0.82rem;
+  font-weight: 730;
+}
+
+.config-popover {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  display: grid;
+  gap: 14px;
+  width: min(760px, calc(100vw - 28px));
+  max-height: min(72vh, 640px);
+  padding: 18px;
+  overflow: visible;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: var(--radius-ui);
+  background: var(--glass-bg-strong);
+  box-shadow: 0 32px 96px rgba(55, 53, 47, 0.24), var(--glass-inset);
+  backdrop-filter: blur(36px) saturate(1.82) contrast(1.05);
+  -webkit-backdrop-filter: blur(36px) saturate(1.82) contrast(1.05);
+  isolation: isolate;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: liquidPopover 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: clip-path, opacity, transform, filter;
+}
+
+.config-popover--basic {
+  width: min(620px, calc(100vw - 28px));
+  gap: 12px;
+  padding: 16px;
+}
+
+.config-popover--basic .config-popover__close {
+  width: 38px;
+  min-height: 38px;
+}
+
+.config-popover::after {
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  width: min(240px, 46%);
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  border-top: 0;
+  border-radius: 0 0 999px 999px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.28) 58%, transparent 72%),
+    rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.46);
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%) scaleX(0.76);
+  transform-origin: 50% 0;
+  z-index: 0;
+}
+
+.config-popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.config-popover__eyebrow {
+  display: block;
+  color: var(--text-subtle);
+  font-size: 0.76rem;
+  font-weight: 780;
+}
+
+.config-popover h2 {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 780;
+}
+
+.config-popover__close {
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+}
+
+.config-popover__body {
+  display: grid;
+  gap: 12px;
+  max-height: min(58vh, 520px);
+  overflow: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+
+.config-popover__header,
+.config-popover__body {
+  animation: liquidContent 280ms ease-out 90ms both;
+}
+
