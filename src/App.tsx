@@ -1,31 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Clock3, Hourglass, Timer, TimerReset } from "lucide-react";
+import { useCallback } from "react";
 import { FullscreenView } from "./components/FullscreenView";
+import { ModeDock } from "./components/ModeDock";
 import { ProjectionChecklist } from "./components/ProjectionChecklist";
 import { TimerControls } from "./components/TimerControls";
 import { TimerDisplay } from "./components/TimerDisplay";
+import { useFullscreenMode } from "./hooks/useFullscreenMode";
 import { useTimerEngine } from "./hooks/useTimerEngine";
 import { useTimerKeyboardShortcuts } from "./hooks/useTimerKeyboardShortcuts";
 import { useWakeLock } from "./hooks/useWakeLock";
-import type { TimerMode } from "./types";
-
-const TIMER_MODE_TABS: Array<{
-  mode: TimerMode;
-  label: string;
-  detail: string;
-  icon: typeof Clock3;
-}> = [
-  { mode: "countdown", label: "倒计时", detail: "限时投屏", icon: Hourglass },
-  { mode: "countup", label: "正计时", detail: "从零累计", icon: Timer },
-  { mode: "clock", label: "时钟", detail: "待机展示", icon: Clock3 },
-];
-const APP_VERSION = import.meta.env.VITE_APP_VERSION;
-const GITHUB_URL = "https://github.com/nowscott/TimerDisplay";
 
 export default function App() {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const [isFocusMode, setIsFocusMode] = useState(false);
   const timer = useTimerEngine();
+  const { rootRef, isFocusMode, exitFullscreen, toggleFullscreen } = useFullscreenMode({
+    setNotice: timer.setNotice,
+  });
   const { wakeLockStatus, requestScreenWakeLock, releaseScreenWakeLock } = useWakeLock(
     timer.settings.preventDisplaySleep,
     timer.setNotice
@@ -45,56 +33,6 @@ export default function App() {
     },
     [releaseScreenWakeLock, requestScreenWakeLock, timer]
   );
-
-  const enterFullscreen = useCallback(async () => {
-    setIsFocusMode(true);
-
-    try {
-      if (!rootRef.current?.requestFullscreen) {
-        timer.setNotice("已进入大屏展示模式；如需隐藏浏览器工具栏，请手动全屏。");
-        return;
-      }
-
-      if (!document.fullscreenElement) {
-        await rootRef.current.requestFullscreen();
-      }
-    } catch {
-      timer.setNotice("已进入大屏展示模式；浏览器未允许原生全屏，可手动按 F11。");
-    }
-  }, [timer]);
-
-  const exitFullscreen = useCallback(async () => {
-    setIsFocusMode(false);
-
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      }
-    } catch {
-      timer.setNotice("无法退出全屏，请使用 Esc 或浏览器全屏按钮。");
-    }
-  }, [timer]);
-
-  const toggleFullscreen = useCallback(() => {
-    if (isFocusMode || document.fullscreenElement) {
-      void exitFullscreen();
-      return;
-    }
-
-    void enterFullscreen();
-  }, [enterFullscreen, exitFullscreen, isFocusMode]);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const isFullscreen = Boolean(document.fullscreenElement);
-      if (!isFullscreen) {
-        setIsFocusMode(false);
-      }
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
 
   useTimerKeyboardShortcuts({
     isFocusMode,
@@ -128,47 +66,7 @@ export default function App() {
     />
   ) : (
     <main className="timer-workspace">
-      <header className="mode-dock" aria-label="计时模式">
-        <div className="mode-dock-brand inline-flex items-center">
-          <span className="mode-dock-brand__icon" aria-hidden="true">
-            <TimerReset size={21} />
-          </span>
-          <span className="mode-dock-brand__copy">
-            <span className="mode-dock-brand__text">TimerDisplay</span>
-            <a
-              className="mode-dock-version"
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`TimerDisplay ${APP_VERSION}，在 GitHub 打开`}
-            >
-              v{APP_VERSION}
-            </a>
-          </span>
-        </div>
-        <div className="mode-tabs inline-flex items-center" role="tablist" aria-label="当前模式">
-          {TIMER_MODE_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = timer.settings.mode === tab.mode;
-
-            return (
-              <button
-                className={isActive ? "mode-tab mode-tab--active inline-flex items-center" : "mode-tab inline-flex items-center"}
-                type="button"
-                key={tab.mode}
-                role="tab"
-                aria-selected={isActive}
-                data-testid={`mode-tab-${tab.mode}`}
-                onClick={() => timer.switchTimerMode(tab.mode)}
-              >
-                <Icon aria-hidden="true" size={18} />
-                <span className="mode-tab__label">{tab.label}</span>
-                <span className="mode-tab__detail">{tab.detail}</span>
-              </button>
-            );
-          })}
-        </div>
-      </header>
+      <ModeDock mode={timer.settings.mode} onModeChange={timer.switchTimerMode} />
 
       <section className="workspace-main" aria-label="计时主内容">
         <TimerDisplay

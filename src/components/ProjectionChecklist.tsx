@@ -1,12 +1,10 @@
 import { useState, type ReactNode } from "react";
-import { Bell, Clock3, LayoutTemplate, Maximize2, MonitorCheck, Settings2, Type, X } from "lucide-react";
-import type { TimerSettingsProps } from "./TimerSettings";
-import {
-  TimerBasicSettings,
-  TimerDisplayOptionsSettings,
-  TimerModeSettings,
-  TimerReminderSettings,
-} from "./TimerSettings";
+import { Bell, Clock3, LayoutTemplate, Maximize2, MonitorCheck, Type, X } from "lucide-react";
+import { TimerBasicSettings } from "./settings/TimerBasicSettings";
+import { TimerDisplayOptionsSettings } from "./settings/TimerDisplayOptionsSettings";
+import { TimerModeSettings } from "./settings/TimerModeSettings";
+import { TimerReminderSettings } from "./settings/TimerReminderSettings";
+import type { TimerSettingsProps } from "./settings/types";
 import { formatClock, formatReminderSummary, getMatchingTimerModePreset } from "../utils/time";
 
 type ConfigSectionKey = "mode" | "basic" | "display" | "reminders";

@@ -23,8 +23,16 @@ function getScreenWakeLock(): ScreenWakeLock | null {
   return (navigator as WakeLockNavigator).wakeLock ?? null;
 }
 
+function getUnsupportedWakeLockStatus(): WakeLockStatus {
+  if (typeof window !== "undefined" && !window.isSecureContext) {
+    return "unsupported-insecure";
+  }
+
+  return "unsupported";
+}
+
 function getInitialWakeLockStatus(): WakeLockStatus {
-  return getScreenWakeLock() ? "available" : "unsupported";
+  return getScreenWakeLock() ? "available" : getUnsupportedWakeLockStatus();
 }
 
 export function useWakeLock(preventDisplaySleep: boolean, setNotice: (notice: string) => void) {
@@ -41,10 +49,15 @@ export function useWakeLock(preventDisplaySleep: boolean, setNotice: (notice: st
       const wakeLock = getScreenWakeLock();
 
       if (!wakeLock) {
-        setWakeLockStatus("unsupported");
+        const unsupportedStatus = getUnsupportedWakeLockStatus();
+        setWakeLockStatus(unsupportedStatus);
 
         if (showFeedback) {
-          setNotice("当前浏览器不支持屏幕常亮，请检查系统电源设置。");
+          setNotice(
+            unsupportedStatus === "unsupported-insecure"
+              ? "屏幕常亮需要 HTTPS 或 localhost 环境。"
+              : "当前浏览器不支持屏幕常亮，请检查系统电源设置。"
+          );
         }
 
         return false;
@@ -56,7 +69,7 @@ export function useWakeLock(preventDisplaySleep: boolean, setNotice: (notice: st
       }
 
       if (document.visibilityState !== "visible") {
-        setWakeLockStatus("blocked");
+        setWakeLockStatus("blocked-hidden");
         return false;
       }
 
@@ -93,7 +106,7 @@ export function useWakeLock(preventDisplaySleep: boolean, setNotice: (notice: st
         return true;
       } catch {
         wakeLockRef.current = null;
-        setWakeLockStatus(getScreenWakeLock() ? "blocked" : "unsupported");
+        setWakeLockStatus(getScreenWakeLock() ? "blocked-permission" : getUnsupportedWakeLockStatus());
 
         if (showFeedback) {
           setNotice("无法启用屏幕常亮，请允许浏览器权限或检查系统电源设置。");
@@ -117,7 +130,7 @@ export function useWakeLock(preventDisplaySleep: boolean, setNotice: (notice: st
       }
     }
 
-    setWakeLockStatus(getScreenWakeLock() ? "available" : "unsupported");
+    setWakeLockStatus(getScreenWakeLock() ? "available" : getUnsupportedWakeLockStatus());
   }, []);
 
   useEffect(() => {

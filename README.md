@@ -43,13 +43,22 @@ TimerDisplay/
 ├── src/
 │   ├── components/
 │   │   ├── FullscreenView.tsx
+│   │   ├── ModeDock.tsx
 │   │   ├── ReminderConfig.tsx
 │   │   ├── TimerControls.tsx
 │   │   ├── TimerDisplay.tsx
-│   │   └── TimerSettings.tsx
+│   │   ├── ProjectionChecklist.tsx
+│   │   └── settings/
+│   ├── hooks/
+│   │   ├── useFullscreenMode.ts
+│   │   ├── useTimerEngine.ts
+│   │   ├── useTimerKeyboardShortcuts.ts
+│   │   └── useWakeLock.ts
 │   ├── utils/
 │   │   ├── sound.ts
 │   │   ├── storage.ts
+│   │   ├── timerDefaults.ts
+│   │   ├── timerPresentation.ts
 │   │   └── time.ts
 │   ├── App.css
 │   ├── App.tsx

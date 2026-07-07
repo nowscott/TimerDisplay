@@ -4,7 +4,16 @@ export type TimerPhase = "normal" | "warning" | "danger" | "overtime" | "finishe
 
 export type TimerMode = "countdown" | "countup" | "clock";
 
-export type WakeLockStatus = "unsupported" | "available" | "requesting" | "active" | "released" | "blocked";
+export type WakeLockStatus =
+  | "unsupported"
+  | "unsupported-insecure"
+  | "available"
+  | "requesting"
+  | "active"
+  | "released"
+  | "blocked"
+  | "blocked-hidden"
+  | "blocked-permission";
 
 export interface ReminderNode {
   id: string;

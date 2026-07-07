@@ -30,6 +30,18 @@ function getWakeLockStatusText(status: WakeLockStatus, enabled: boolean): string
     return "当前浏览器不支持屏幕常亮";
   }
 
+  if (status === "unsupported-insecure") {
+    return "屏幕常亮需要 HTTPS 或 localhost";
+  }
+
+  if (status === "blocked-hidden") {
+    return "标签页可见时才能启用常亮";
+  }
+
+  if (status === "blocked-permission") {
+    return "屏幕常亮被浏览器或系统阻止";
+  }
+
   if (status === "blocked") {
     return "屏幕常亮需要授权";
   }
@@ -50,7 +62,10 @@ export function TimerDisplayOptionsSettings({
 }: TimerDisplayOptionsSettingsProps) {
   const wakeLockStatusText = getWakeLockStatusText(wakeLockStatus, settings.preventDisplaySleep);
   const showWakeLockAction =
-    settings.preventDisplaySleep && wakeLockStatus !== "active" && wakeLockStatus !== "unsupported";
+    settings.preventDisplaySleep &&
+    wakeLockStatus !== "active" &&
+    wakeLockStatus !== "unsupported" &&
+    wakeLockStatus !== "unsupported-insecure";
 
   return (
     <div className="toggle-grid">
