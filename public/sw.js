@@ -1,4 +1,4 @@
-const CACHE_NAME = "timer-display-v0.0.19";
+const CACHE_NAME = "timer-display-v0.0.20";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

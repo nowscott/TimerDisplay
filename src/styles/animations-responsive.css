@@ -167,47 +167,47 @@
 
 @media (min-width: 901px) and (max-width: 1499px) {
   .app-shell {
-    padding: 18px clamp(18px, 2.4vw, 28px) 112px;
+    padding: clamp(18px, 2.8vh, 30px) clamp(18px, 3vw, 34px) clamp(112px, 15vh, 142px);
   }
 
   .timer-workspace {
-    width: min(100%, 1040px);
+    width: min(100%, clamp(1040px, calc(440px + 56vw), 1280px));
     align-content: start;
-    min-height: calc(100vh - 138px);
-    gap: 18px;
+    min-height: calc(100vh - 160px);
+    gap: clamp(18px, calc(4.5px + 1.5vw), 27px);
   }
 
   .mode-dock {
-    width: 100%;
+    width: min(100%, 960px);
     grid-template-columns: minmax(210px, auto) minmax(0, 1fr);
     gap: 14px;
-    padding: 11px;
+    padding: 9px;
   }
 
   .mode-dock-brand {
-    gap: 10px;
+    gap: 8px;
     padding-right: 12px;
   }
 
   .mode-dock-brand__icon {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
   }
 
   .mode-dock-brand__text {
-    font-size: 1.24rem;
+    font-size: 1rem;
   }
 
   .mode-dock-version {
-    font-size: 0.8rem;
+    font-size: 0.72rem;
   }
 
   .mode-tab {
     justify-content: center;
-    min-height: 58px;
-    gap: 8px;
-    padding: 0 20px;
-    font-size: 1.14rem;
+    min-height: 44px;
+    gap: 7px;
+    padding: 0 14px;
+    font-size: 1rem;
   }
 
   .mode-tab__detail {
@@ -217,14 +217,14 @@
   .workspace-main {
     align-items: start;
     min-height: auto;
-    margin-top: clamp(28px, 6vh, 120px);
+    margin-top: clamp(28px, 7vh, 140px);
   }
 
   .timer-workspace .timer-stage {
-    width: min(100%, 1040px);
-    height: min(720px, max(520px, calc(100vh - 580px)));
-    min-height: 520px;
-    padding: 26px 34px 30px;
+    width: min(100%, clamp(1040px, calc(940px + 9.333vw), 1080px));
+    height: min(720px, max(clamp(520px, calc(460px + 6.667vw), 560px), calc(100vh - 580px)));
+    min-height: clamp(520px, calc(460px + 6.667vw), 560px);
+    padding: clamp(26px, calc(2px + 2.667vw), 42px);
   }
 
   .stage-main {
@@ -295,40 +295,84 @@
     min-height: 48px;
   }
 
+  .timer-controls,
+  .timer-stage--mode-countdown .timer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: auto;
+  }
+
+  .timer-controls .control-button,
+  .timer-controls .icon-button,
+  .timer-stage--mode-countdown .timer-controls .control-button,
+  .timer-stage--mode-countdown .timer-controls .icon-button {
+    width: auto;
+    min-height: 42px;
+  }
+
+  .timer-controls .control-button,
+  .timer-stage--mode-countdown .timer-controls .control-button {
+    min-width: 124px;
+  }
+
+  .timer-controls .control-button--primary,
+  .timer-stage--mode-countdown .timer-controls .control-button--primary {
+    min-width: 142px;
+  }
+
+  .timer-controls .icon-button,
+  .timer-stage--mode-countdown .timer-controls .icon-button {
+    width: 42px;
+    min-width: 42px;
+  }
+
   .config-dock-shell {
-    width: min(1040px, calc(100vw - 32px));
+    width: min(1120px, calc(100vw - 28px));
   }
 
   .config-dock {
-    gap: 9px;
-    padding: 11px;
+    gap: 8px;
+    padding: 9px;
     overflow: hidden;
   }
 
   .config-dock-button {
     flex: 1 1 0;
-    min-height: 74px;
-    gap: 10px;
-    padding: 0 16px;
+    min-height: 54px;
+    gap: 9px;
+    padding: 0 14px;
   }
 
   .config-dock-button__icon {
-    width: 46px;
-    height: 46px;
+    width: 34px;
+    height: 34px;
   }
 
   .config-dock-button__text span {
-    font-size: 1.1rem;
+    font-size: 0.94rem;
   }
 
   .config-dock-button__text small {
     max-width: 13ch;
-    font-size: 0.84rem;
+    font-size: 0.76rem;
   }
 
   .config-dock-status,
   .config-dock-status--clock {
     display: none;
+  }
+}
+
+@media (min-width: 1320px) and (max-width: 1499px) {
+  .mode-tab__detail {
+    display: inline;
+  }
+
+  .config-dock-status,
+  .config-dock-status--clock {
+    display: inline-flex;
   }
 }
 
